@@ -1,0 +1,188 @@
+# Osun State Park Management System
+
+Government-facing park operations and revenue administration platform. Technology Solution by **Pinnacle Tech Hub**.
+
+This repository currently implements **Milestones 0–2**: the Laravel foundation, authentication/RBAC, account and user administration, and the State Dashboard skeleton. It is not the complete Phase 1 product. Park/transport registries, ticketing, payment processing, receipts, financial ledger, reconciliation, enforcement and reports remain in their approved later milestones.
+
+Government retains policy, regulatory authority and ownership of operational and financial data. Pinnacle Tech Hub is the technology provider.
+
+## Controlling documents
+
+Read these before changing functionality, in this precedence order:
+
+1. [Project Scope v1.0](docs/PROJECT_SCOPE_v1.0.md)
+2. [Database Schema v1.0](docs/DATABASE_SCHEMA_v1.0.md)
+3. [Screen Inventory v1.0](docs/SCREEN_INVENTORY_v1.0.md)
+4. [Architecture & Implementation Plan v1.0](docs/ARCHITECTURE_IMPLEMENTATION_PLAN_v1.0.md)
+
+Implementation notes: [Decisions](docs/DECISIONS.md), [Required decisions](docs/DECISIONS_REQUIRED.md), [Status](docs/IMPLEMENTATION_STATUS.md), [Validation](docs/VALIDATION.md).
+
+## Stack and architecture
+
+- Laravel 12, PHP 8.2+, Eloquent, Form Requests, Policies and transactional domain Actions
+- React 19, TypeScript, Inertia 2, Tailwind 4 and Vite; compiled assets, no Node production server
+- Spatie Laravel Permission 6 and Activitylog 4
+- MySQL 8 target with InnoDB; database queues/cache/sessions
+- SQLite for fast isolated tests; MySQL integration tests supported
+
+`app/Domains` contains the approved domain boundaries. Controllers adapt requests/responses; Actions perform writes; Services own shared rules; Queries own scoped filtering. React presents server-provided data. Future financial workflows must use decimal-safe amounts, immutable records and idempotent transactions as prescribed by the schema.
+
+LGA/Park/Operator master tables exist only because the Milestone 1 scope pivots require their foreign keys. No later registry workflow is exposed. See ADR-002.
+
+## Local installation
+
+Requirements: PHP 8.2+ with PDO MySQL, PDO SQLite, mbstring, OpenSSL, fileinfo, ctype, DOM/XML and tokenizer; Composer 2; Node 22 LTS-compatible runtime; npm; MySQL 8; Git.
+
+From the repository directory:
+
+```powershell
+composer install
+npm.cmd ci
+Copy-Item .env.example .env
+php artisan key:generate
+```
+
+On Linux/macOS use `npm` and `cp .env.example .env`. On an already configured workspace, preserve the existing `.env` and `APP_KEY`.
+
+Create an empty MySQL database named `ospm` and a dedicated database user using your database administration tool. Use UTF-8 (`utf8mb4`) and InnoDB. Set these values in the ignored `.env`:
+
+```dotenv
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=ospm
+DB_USERNAME=your_local_database_user
+DB_PASSWORD=your_local_database_password
+
+OSPM_DEMO_MODE=true
+PAYMENT_MODE=demo
+PAYMENT_PROVIDER=demo
+DEMO_DEFAULT_PASSWORD=your_unique_strong_demo_password
+```
+
+Choose a demo password with at least 12 characters, mixed case and a number. No default password is committed. Payment configuration reserves the approved demo mode; no payment gateway is implemented in this milestone.
+
+```powershell
+php artisan migrate
+php artisan db:seed
+npm.cmd run build
+php artisan serve --host=127.0.0.1 --port=8000
+```
+
+Open [the local login page](http://127.0.0.1:8000/login). For frontend development, run `npm.cmd run dev` in a second terminal. Laravel remains the backend and serves production builds without Vite or Node running.
+
+The prepared workspace uses an **isolated MySQL 8.4.11 instance on port 3308**, extracted from the official MySQL archive without administrator installation. Its generated database/demo credentials are stored only in `.env`; its runtime and data are under ignored `.qa`. If that local instance has stopped, it can be restarted with:
+
+```powershell
+Start-Process -FilePath 'C:\wamp64\www\OSPMS\.qa\mysql-8.4.11-winx64\bin\mysqld.exe' -ArgumentList '--no-defaults','--basedir=C:/wamp64/www/OSPMS/.qa/mysql-8.4.11-winx64','--datadir=C:/wamp64/www/OSPMS/.qa/mysql8-data','--port=3308','--bind-address=127.0.0.1','--mysqlx=OFF','--log-error=C:/wamp64/www/OSPMS/storage/logs/mysql8-local.log' -WindowStyle Hidden
+```
+
+Do not initialize that directory again or delete `.qa` while using this prepared local database. It already contains configured databases. Fresh clones should use their own MySQL 8 installation with the standard setup above. See the validation report for the corrected earlier port-3307 MariaDB checks and restored MariaDB login setting.
+
+## Demo accounts
+
+The seeder creates one synthetic user for every required role. Sign in using the username below or `<username>@demo.local`; every seeded account initially uses `DEMO_DEFAULT_PASSWORD` from your own `.env`.
+
+| Username | Role |
+|---|---|
+| superadmin | Super Administrator |
+| stateadmin | State Administrator |
+| executive | Executive Viewer |
+| finance | Finance Administrator |
+| revenue | Revenue Officer |
+| auditor | Auditor |
+| lgaadmin | LGA Administrator |
+| parkmanager | Park Manager |
+| ticketing | Ticketing Officer |
+| collection | Collection Agent |
+| enforcement | Enforcement Officer |
+| helpdesk | Help Desk Officer |
+| operator | Transport Operator |
+
+The demo seeder refuses production. Scoped users land on **My Access** until their operational modules are available; State Dashboard access requires its own permission. Auditors are read-only by default. User/role administration is reserved for explicitly permitted users. Scope records distinguish `view` from `manage`; an empty scope never implies statewide access.
+
+```powershell
+php artisan ospm:demo-reset
+```
+
+The command refuses non-demo and production environments. Currently it restores the identity baseline only: demo passwords/status/roles, scope assignments and sessions. It preserves other accounts and audit history. Future transactional reset behavior belongs to later financial milestones. There is no reset button or public reset route.
+
+## Password recovery and sessions
+
+Forgot/reset password uses Laravel's password broker, expiring single-use tokens, generic account lookup responses and rate limits. The local `array` mailer intentionally does not deliver messages or log reset tokens. Configure an actual SMTP transport (for example a local mail catcher) to test delivery:
+
+```dotenv
+MAIL_MAILER=smtp
+MAIL_HOST=your_mail_host
+MAIL_PORT=your_mail_port
+MAIL_SCHEME=
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_FROM_ADDRESS=your_authorized_sender_address
+```
+
+Never commit SMTP credentials. Password changes revoke other stored sessions; administrative credential changes/deactivation also rotate remember tokens and revoke target sessions. Users created by administrators can be required to change their temporary password before continuing.
+
+## Branding and configuration
+
+`config/ospm.php` is the configuration entry point. Neutral demo colours are not official Osun Government branding. The simple building icon is a neutral UI symbol, not a government seal.
+
+Configurable keys include `OSPM_BRAND_PRIMARY`, `OSPM_BRAND_PRIMARY_DARK`, `OSPM_BRAND_SECONDARY`, `OSPM_GOVERNMENT_LOGO` (a trusted public asset URL/path) and `OSPM_POWERED_BY`. Colours should be CSS hex values. Primary colours flow through shared CSS/Tailwind tokens and all layouts. Branding administration screens are deferred to Milestone 16.
+
+Timestamps are stored in UTC. `OSPM_TIMEZONE=Africa/Lagos` controls display and date-filter boundaries; `OSPM_CURRENCY=NGN` controls money labels. Do not change the approved public product name. Environment variables hold secrets; shared Inertia props contain only public configuration.
+
+The filesystem remains private/local by default. Standard S3-compatible configuration is reserved for future object storage; the AWS Flysystem adapter and private upload workflows should be installed/implemented with the relevant upload milestone, not enabled prematurely.
+
+## Tests and checks
+
+```powershell
+php artisan test
+composer lint
+npm.cmd run typecheck
+npm.cmd run lint
+npm.cmd run build
+php artisan migrate:status
+composer validate --strict
+```
+
+The PHPUnit default is isolated SQLite `:memory:`. Run `php artisan config:clear` before tests if you previously cached deployment configuration. Tests cover login/logout, inactive accounts, password resets, session revocation, role grants, user administration, scope persistence and isolation, validation, dashboard access and demo reset safeguards. Composer's strict schema check reports a missing license metadata warning; no licensing policy has been assumed.
+
+To run against MySQL, create a **separate disposable test database**, then override both connection and database:
+
+```powershell
+$env:DB_CONNECTION='mysql'
+$env:DB_DATABASE='ospm_test'
+php artisan test
+Remove-Item Env:\DB_CONNECTION
+Remove-Item Env:\DB_DATABASE
+```
+
+The test suite recreates its configured database tables. Never point it at an operational/demo database that must be retained. See [the validation report](docs/VALIDATION.md) for executed checks, including MySQL 8.4.
+
+## Queues and scheduler
+
+Framework tables are ready for the approved database queue. Run a local worker when asynchronous features are introduced:
+
+```powershell
+php artisan queue:work --tries=3
+php artisan schedule:list
+```
+
+For shared hosting, configure cron to call `php /path/to/ospm/artisan schedule:run` every minute. A provider-approved short-running `queue:work --stop-when-empty --max-time=50 --tries=3` strategy can process the database queue. No business jobs/schedules are registered during Milestones 0–2. Avoid overlapping workers according to host facilities.
+
+## Shared hosting deployment
+
+1. Point the HTTPS domain's document root to Laravel's `public/` directory. Keep `.env`, storage, source and vendor directories outside the web root.
+2. Build assets using `npm ci` and `npm run build`; deploy `public/build` with the application. Do not run a Node production server.
+3. Install production PHP dependencies: `composer install --no-dev --optimize-autoloader`.
+4. Supply distinct deployment credentials, `APP_KEY`, `APP_URL`, `APP_DEBUG=false`, HTTPS-only secure session cookies, MySQL 8 and SMTP settings. For synthetic presentations use a non-production demo environment; never use production credentials or genuine citizen data.
+5. Ensure `storage` and `bootstrap/cache` are writable by the PHP account. Run `php artisan migrate --force`, then approved seeders only for the intended demo environment.
+6. Run `php artisan optimize`; verify login, password recovery and scoped access. Configure cron/queue processing when their workflows are implemented, HTTPS, Cloudflare forwarding and host-managed database backups.
+
+No live Government treasury or revenue collection integration exists. Production PostgreSQL, Redis/Horizon, Nginx/PHP-FPM and object storage remain future targets and are not deployed by this build.
+
+## Security and Phase 1 boundaries
+
+Do not expose synthetic presentation accounts publicly with shared/weak passwords. Keep credentials and application keys out of source control, use HTTPS and separate environments, and perform the later security/QA release gate before any government pilot. Existing automated tests and RBAC provide a foundation; they do not certify the entire unbuilt Phase 1 product.
+
+No microservices, native mobile apps, biometrics, tracking, passenger bookings, wallets, AI fraud detection or other out-of-scope workflows have been added. The complete demonstration journey will be delivered in the approved milestone sequence. The next feature milestone is **Milestone 3 — LGAs, Parks & Routes**.

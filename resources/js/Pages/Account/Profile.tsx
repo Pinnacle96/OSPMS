@@ -1,0 +1,8 @@
+import { Link, useForm } from '@inertiajs/react';
+import AppLayout from '@/Layouts/AppLayout';
+import PageHeader from '@/Components/App/PageHeader';
+import FormField from '@/Components/Forms/FormField';
+export default function Profile({ profile }: { profile: { name: string; email: string | null; username: string | null; phone: string | null } }) {
+    const form = useForm({ name: profile.name, email: profile.email ?? '', username: profile.username ?? '', phone: profile.phone ?? '' });
+    return <AppLayout title="My Profile" breadcrumbs={[{ label: 'Account' }, { label: 'My profile' }]}><PageHeader title="My profile" description="Review and update your account contact information." actions={<Link className="button secondary" href="/account/security">Account security</Link>} /><form className="panel form-panel" onSubmit={e => { e.preventDefault(); form.patch('/account/profile'); }}><div className="panel-header"><h2>Personal information</h2></div><div className="panel-body"><div className="form-grid">{(['name', 'email', 'username', 'phone'] as const).map(key => <FormField key={key} id={key} label={{ name: 'Full name', email: 'Email address', username: 'Username', phone: 'Telephone' }[key]} error={form.errors[key]}><input id={key} type={key === 'email' ? 'email' : key === 'phone' ? 'tel' : 'text'} required={key === 'name'} value={form.data[key]} onChange={e => form.setData(key, e.target.value)} aria-invalid={!!form.errors[key]} aria-describedby={form.errors[key] ? `${key}-error` : undefined} /></FormField>)}</div><div className="form-actions"><button className="button" disabled={form.processing}>Save profile</button></div></div></form></AppLayout>;
+}

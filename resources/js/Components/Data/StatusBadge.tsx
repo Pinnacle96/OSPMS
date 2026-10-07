@@ -1,0 +1,2 @@
+const treatment: Record<string, string> = { active: 'success', approved: 'success', paid: 'success', successful: 'success', reconciled: 'success', pending: 'warning', under_review: 'warning', failed: 'danger', suspended: 'danger', exception: 'danger', inactive: 'neutral', expired: 'neutral', cancelled: 'neutral', draft: 'info' };
+export default function StatusBadge({ status }: { status: string }) { return <span className={`status-badge ${treatment[status] ?? 'neutral'}`}><span aria-hidden="true" />{status.replaceAll('_', ' ')}</span>; }
