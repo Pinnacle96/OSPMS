@@ -1,7 +1,7 @@
 import type { PageProps } from '@inertiajs/core';
 
 export type User = { public_id: string; name: string; email: string | null; username: string | null; phone?: string | null; status: string; must_change_password?: boolean; last_login_at?: string | null; created_at?: string; roles?: { id: number; name: string }[] };
-export type Scope = { id: number; name: string; access_level: 'view' | 'manage' };
+export type Scope = { id: number; public_id?: string; name: string; access_level: 'view' | 'manage' };
 export type AccessScopes = { statewide: boolean; lgas: Scope[]; parks: Scope[]; operators: Scope[] };
 export interface SharedProps extends PageProps {
     auth: { user: User | null; roles: string[]; permissions: string[]; scopes: AccessScopes | null };

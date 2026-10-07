@@ -1,12 +1,12 @@
 # Implementation status
 
 Build date: 2026-10-07 (Africa/Lagos)
-Authorized run: Milestones 0–2 only.
+Current authorization: continue through Milestone 3. Milestones 0–2 were completed in the foundation run.
 
 - [x] Milestone 0 — Project Bootstrap
 - [x] Milestone 1 — Authentication + RBAC
 - [x] Milestone 2 — Core Shell + State Dashboard Skeleton
-- [ ] Milestone 3 — LGAs, Parks & Routes
+- [x] Milestone 3 — LGAs, Parks & Routes
 - [ ] Milestone 4 — Operators
 - [ ] Milestone 5 — Drivers, Vehicles & Assignments
 - [ ] Milestone 6 — Revenue Heads & Fee Configuration
@@ -47,7 +47,7 @@ Blocked: none for foundation functionality.
 
 Tests: 34 feature tests / 289 assertions passed independently on SQLite and MySQL 8.4.11. Browser login/logout, authorization, validation, scope landing and administration checks passed. Demo reset safeguards and the command itself passed.
 
-Known issues: no operational entities are seeded yet, so scope selection lists are empty. LGA/Park/Operator approved tables exist only to support scope foreign keys. Registry relationship inheritance must be extended with Milestones 3–4. General/financial audit viewer screens remain Milestone 16.
+Known issues: LGA/Park scope selection now has demo registry records. Operator scopes remain persistence scaffolding and their selectors remain empty until Milestone 4. Operator-to-park inheritance must be extended in that milestone. General/financial audit viewer screens remain Milestone 16.
 
 ## Milestone 2
 
@@ -61,10 +61,22 @@ Tests: TypeScript, ESLint, production build and browser smoke passed. Screenshot
 
 Known issues: no financial workflows or charts with data exist yet. Dashboard zeros and empty areas explicitly disclose this. Recent activity is real and permission-filtered. The Field layout is a foundation only; no field routes, service worker or scanner is implemented.
 
+## Milestone 3
+
+Completed: SCR-020–031, SCR-010 and SCR-011. Approved Route/ParkRoute schema, relationships, LGA/Park/Route create/read/update/archive, activation/suspension, scoped list Queries, server-side search/filter/sort/pagination, transactional policy-enforced Actions, audited changes, retained assignment history, detail tabs, local dashboards, navigation and dashboard scope links. Demo seed data includes three labelled LGAs, parks and routes, with separate LGA/Park scope baselines.
+
+In progress: none.
+
+Blocked: none.
+
+Tests: full identity/registry suite passes on SQLite and MySQL 8.4.11; 19 Milestone 3 tests cover all 14 screens, geographic isolation, shared routes, write authorization, statuses, archive guards, assignment history and idempotent demo seeding. Browser CRUD/status/assignment/scoped-access smoke passed. Fourteen sampled desktop/mobile accessibility audits returned zero violations. See [Milestone 3 validation](MILESTONE_3_VALIDATION.md) for final counts and commands.
+
+Known issues: later Operator/Driver/Vehicle, financial, incident and compliance panels deliberately show unavailable or zero states. Routes derive geography through ParkRoute; authorized assignment editors can select from the active global route catalogue, without receiving other parks' relationships. Archives retain their unique business codes and have no restore UI in this milestone. Demo reset preserves existing registry edits and archives. SMTP and unspecified license metadata remain foundation limitations.
+
 ## Later milestones
 
 Completed: none.
 In progress: none.
-Blocked: outside this run's authorized Milestones 0–2; not started.
+Blocked: Milestones 4–20 are outside the current authorized implementation; not started.
 Tests: no later workflow is claimed as tested.
 Known issues: the complete Phase 1 financial and operational presentation journey is not yet available.

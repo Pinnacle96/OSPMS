@@ -17,6 +17,9 @@ class HandleInertiaRequests extends Middleware
         $nav = [];
         foreach ([
             ['Dashboard', '/dashboard', 'OVERVIEW', 'dashboard', 'view_state_dashboard'],
+            ['LGAs', '/lgas', 'OPERATIONS', 'geography', 'view_lga'],
+            ['Parks', '/parks', 'OPERATIONS', 'parks', 'view_park'],
+            ['Routes', '/routes', 'OPERATIONS', 'routes', 'view_route'],
             ['Users', '/admin/users', 'ADMINISTRATION', 'users', 'manage_users'],
             ['Roles & permissions', '/admin/roles', 'ADMINISTRATION', 'shield', 'manage_roles'],
         ] as [$label, $href, $group, $icon, $permission]) {

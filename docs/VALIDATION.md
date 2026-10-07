@@ -1,5 +1,7 @@
 # Foundation validation report
 
+Historical acceptance record for Milestones 0–2. Current implementation and validation continue through [Milestone 3](MILESTONE_3_VALIDATION.md); statements about unimplemented registry workflows below describe the earlier foundation.
+
 Date: 2026-10-07 (Africa/Lagos). Authorized scope: Milestones 0–2 only.
 
 ## Verified environment

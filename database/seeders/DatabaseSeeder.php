@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
         $this->call(RolePermissionSeeder::class);
         if (config('ospm.demo_mode') && ! app()->environment('production')) {
             $this->call(DemoUserSeeder::class);
+            $this->call(RegistryDemoSeeder::class);
         }
     }
 }

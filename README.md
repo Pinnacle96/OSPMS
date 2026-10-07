@@ -2,7 +2,7 @@
 
 Government-facing park operations and revenue administration platform. Technology Solution by **Pinnacle Tech Hub**.
 
-This repository currently implements **Milestones 0–2**: the Laravel foundation, authentication/RBAC, account and user administration, and the State Dashboard skeleton. It is not the complete Phase 1 product. Park/transport registries, ticketing, payment processing, receipts, financial ledger, reconciliation, enforcement and reports remain in their approved later milestones.
+This repository currently implements **Milestones 0–3**: the Laravel foundation, authentication/RBAC, account and user administration, the State Dashboard skeleton, and LGA/Park/Route administration with scoped local dashboards. It is not the complete Phase 1 product. Operator, Driver and Vehicle registries, ticketing, payments, ledger, reconciliation, enforcement and reports remain in their approved later milestones.
 
 Government retains policy, regulatory authority and ownership of operational and financial data. Pinnacle Tech Hub is the technology provider.
 
@@ -15,7 +15,7 @@ Read these before changing functionality, in this precedence order:
 3. [Screen Inventory v1.0](docs/SCREEN_INVENTORY_v1.0.md)
 4. [Architecture & Implementation Plan v1.0](docs/ARCHITECTURE_IMPLEMENTATION_PLAN_v1.0.md)
 
-Implementation notes: [Decisions](docs/DECISIONS.md), [Required decisions](docs/DECISIONS_REQUIRED.md), [Status](docs/IMPLEMENTATION_STATUS.md), [Validation](docs/VALIDATION.md).
+Implementation notes: [Decisions](docs/DECISIONS.md), [Required decisions](docs/DECISIONS_REQUIRED.md), [Status](docs/IMPLEMENTATION_STATUS.md), [Milestone 3 validation](docs/MILESTONE_3_VALIDATION.md), [Foundation validation](docs/VALIDATION.md).
 
 ## Stack and architecture
 
@@ -27,7 +27,7 @@ Implementation notes: [Decisions](docs/DECISIONS.md), [Required decisions](docs/
 
 `app/Domains` contains the approved domain boundaries. Controllers adapt requests/responses; Actions perform writes; Services own shared rules; Queries own scoped filtering. React presents server-provided data. Future financial workflows must use decimal-safe amounts, immutable records and idempotent transactions as prescribed by the schema.
 
-LGA/Park/Operator master tables exist only because the Milestone 1 scope pivots require their foreign keys. No later registry workflow is exposed. See ADR-002.
+LGA and Park workflows are implemented with Routes and ParkRoute in Milestone 3. The Operator table remains persistence scaffolding for identity scope foreign keys; no Operator workflow is exposed. See ADR-002 and ADR-007.
 
 ## Local installation
 
@@ -99,13 +99,25 @@ The seeder creates one synthetic user for every required role. Sign in using the
 | helpdesk | Help Desk Officer |
 | operator | Transport Operator |
 
-The demo seeder refuses production. Scoped users land on **My Access** until their operational modules are available; State Dashboard access requires its own permission. Auditors are read-only by default. User/role administration is reserved for explicitly permitted users. Scope records distinguish `view` from `manage`; an empty scope never implies statewide access.
+Demo seeders refuse production. Scoped users land on **My Access**, where their LGA/Park scope links open local dashboards. State Dashboard access requires its own permission. Auditors are read-only by default. User/role administration is reserved for explicitly permitted users. Scope records distinguish `view` from `manage`; an empty scope never implies statewide access.
+
+Milestone 3 seeds three clearly labelled demo LGAs, parks and routes. These are synthetic presentation records, not official park registrations. The LGA Administrator manages Osogbo (Demo); the Park Manager manages Demo Osogbo Central Park. Ticketing, Collection, Enforcement and Help Desk demo users have view scope for that park. Operators remain unseeded until Milestone 4. Repeated seeding preserves registry edits, archival decisions and assignment status.
 
 ```powershell
 php artisan ospm:demo-reset
 ```
 
-The command refuses non-demo and production environments. Currently it restores the identity baseline only: demo passwords/status/roles, scope assignments and sessions. It preserves other accounts and audit history. Future transactional reset behavior belongs to later financial milestones. There is no reset button or public reset route.
+The command refuses non-demo and production environments. It restores demo passwords/status/roles, baseline registry scopes and sessions, and ensures missing demo registry records exist. It preserves other accounts, existing registry edits/archives, route assignment history and audit history. It does not restore an archived registry record or reset its edited status. Future transactional reset behavior belongs to later financial milestones. There is no reset button or public reset route.
+
+## LGA, Park and Route workflows
+
+Open **Operations → LGAs / Parks / Routes**. Authorized state administrators can create and edit all three registries. Park editing requires `manage_park` plus manage-level access to the existing park and any destination LGA; scoped accounts cannot register a park by default. LGA and global Route administration require explicit management permission and statewide scope.
+
+Use a park's **Routes** tab to assign approved active routes. Assignment requires `assign_park_routes` plus park management access. Removing a route preserves the assignment as inactive history. Scoped Route lists/details derive visibility through active assignments to accessible parks; shared-route profiles expose only accessible park relationships.
+
+Status changes require UI confirmation and are audited. An active park requires an active LGA; active parks must be suspended/deactivated before deactivating their LGA. First activation time is retained across suspension/reactivation. Archives use soft deletion and are blocked when linked registry history exists, including inactive assignments and archived child parks. Use inactive status for those records.
+
+LGA/Park dashboards use actual park/route counts. Financial and later registry measures show labelled zero/empty states. No later workflow is enabled by those tabs.
 
 ## Password recovery and sessions
 
@@ -145,7 +157,7 @@ php artisan migrate:status
 composer validate --strict
 ```
 
-The PHPUnit default is isolated SQLite `:memory:`. Run `php artisan config:clear` before tests if you previously cached deployment configuration. Tests cover login/logout, inactive accounts, password resets, session revocation, role grants, user administration, scope persistence and isolation, validation, dashboard access and demo reset safeguards. Composer's strict schema check reports a missing license metadata warning; no licensing policy has been assumed.
+The PHPUnit default is isolated SQLite `:memory:`. Run `php artisan config:clear` before tests if you previously cached deployment configuration. Tests cover the identity foundation, registry CRUD/status/audit, route assignment history, cross-LGA and shared-route isolation, scoped dashboards, validation and demo safeguards. Composer's strict schema check reports a missing license metadata warning; no licensing policy has been assumed.
 
 To run against MySQL, create a **separate disposable test database**, then override both connection and database:
 
@@ -157,7 +169,7 @@ Remove-Item Env:\DB_CONNECTION
 Remove-Item Env:\DB_DATABASE
 ```
 
-The test suite recreates its configured database tables. Never point it at an operational/demo database that must be retained. See [the validation report](docs/VALIDATION.md) for executed checks, including MySQL 8.4.
+The test suite recreates its configured database tables. Never point it at an operational/demo database that must be retained. See [the current validation report](docs/MILESTONE_3_VALIDATION.md) for executed checks, including MySQL 8.4.
 
 ## Queues and scheduler
 
@@ -168,7 +180,7 @@ php artisan queue:work --tries=3
 php artisan schedule:list
 ```
 
-For shared hosting, configure cron to call `php /path/to/ospm/artisan schedule:run` every minute. A provider-approved short-running `queue:work --stop-when-empty --max-time=50 --tries=3` strategy can process the database queue. No business jobs/schedules are registered during Milestones 0–2. Avoid overlapping workers according to host facilities.
+For shared hosting, configure cron to call `php /path/to/ospm/artisan schedule:run` every minute. A provider-approved short-running `queue:work --stop-when-empty --max-time=50 --tries=3` strategy can process the database queue. No business jobs/schedules are registered during Milestones 0–3. Avoid overlapping workers according to host facilities.
 
 ## Shared hosting deployment
 
@@ -185,4 +197,4 @@ No live Government treasury or revenue collection integration exists. Production
 
 Do not expose synthetic presentation accounts publicly with shared/weak passwords. Keep credentials and application keys out of source control, use HTTPS and separate environments, and perform the later security/QA release gate before any government pilot. Existing automated tests and RBAC provide a foundation; they do not certify the entire unbuilt Phase 1 product.
 
-No microservices, native mobile apps, biometrics, tracking, passenger bookings, wallets, AI fraud detection or other out-of-scope workflows have been added. The complete demonstration journey will be delivered in the approved milestone sequence. The next feature milestone is **Milestone 3 — LGAs, Parks & Routes**.
+No microservices, native mobile apps, biometrics, tracking, passenger bookings, wallets, AI fraud detection or other out-of-scope workflows have been added. The complete demonstration journey will be delivered in the approved milestone sequence. The next feature milestone is **Milestone 4 — Operators**.

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Domains\Identity\Enums\UserStatus;
 use App\Domains\Identity\Models\User;
 use Database\Seeders\DemoUserSeeder;
+use Database\Seeders\RegistryDemoSeeder;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -40,8 +41,9 @@ class DemoResetCommand extends Command
                 DB::table('sessions')->where('user_id', $user->id)->delete();
             }
             activity('system')->log('demo_identity_reset');
+            $this->call('db:seed', ['--class' => RegistryDemoSeeder::class, '--force' => true]);
         });
-        $this->info('Demo identity baseline restored. Audit history preserved. Financial reset is deferred to later milestones.');
+        $this->info('Demo identity and registry access baseline restored. Existing registry edits and audit history preserved. Financial reset is deferred.');
 
         return self::SUCCESS;
     }

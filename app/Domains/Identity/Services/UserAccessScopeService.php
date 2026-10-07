@@ -48,6 +48,15 @@ class UserAccessScopeService
         return $this->scopeLgas(Lga::query(), $user, $level)->whereKey($lga->id)->exists();
     }
 
+    public function scopeRoutes(Builder $query, User $user): Builder
+    {
+        if ($this->isStatewide($user)) {
+            return $query;
+        }
+
+        return $query->whereHas('parks', fn (Builder $parks) => $this->scopeParks($parks, $user)->where('park_route.status', 'active'));
+    }
+
     public function canAccessPark(User $user, Park $park, AccessLevel $level = AccessLevel::View): bool
     {
         return $this->scopeParks(Park::query(), $user, $level)->whereKey($park->id)->exists();
@@ -75,7 +84,7 @@ class UserAccessScopeService
 
     public function summary(User $user): array
     {
-        $map = fn ($models) => $models->map(fn ($model) => ['id' => $model->id, 'name' => $model->name, 'access_level' => $model->pivot->access_level])->values()->all();
+        $map = fn ($models) => $models->map(fn ($model) => ['id' => $model->id, 'public_id' => $model->public_id, 'name' => $model->name, 'access_level' => $model->pivot->access_level])->values()->all();
 
         return ['statewide' => $this->isStatewide($user), 'lgas' => $map($user->lgas), 'parks' => $map($user->parks), 'operators' => $map($user->operators)];
     }
