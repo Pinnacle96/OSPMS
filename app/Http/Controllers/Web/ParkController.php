@@ -12,6 +12,7 @@ use App\Domains\Parks\Actions\SaveParkAction;
 use App\Domains\Parks\Models\Park;
 use App\Domains\Parks\Queries\ParkListQuery;
 use App\Domains\Reporting\Queries\LocalDashboardQuery;
+use App\Domains\Reporting\Queries\TransportConnectionsQuery;
 use App\Domains\Routes\Models\Route;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Operations\AssignParkRoutesRequest;
@@ -53,7 +54,7 @@ class ParkController extends Controller
         $park->load('lga:id,public_id,name');
         $routes = $park->routes()->orderBy('route_code')->paginate(10)->withQueryString();
 
-        return Inertia::render('Parks/Show', ['record' => $park, 'can_view_lga' => $request->user()->can('view', $park->lga), 'managers' => User::where('status', 'active')->whereHas('roles', fn ($q) => $q->where('name', 'Park Manager'))->whereHas('parks', fn ($q) => $q->where('parks.id', $park->id))->get(['name']), 'assigned_routes' => $routes, 'route_options' => $canAssign ? Route::where('status', 'active')->orderBy('route_code')->get(['id', 'route_code', 'origin', 'destination']) : [],
+        return Inertia::render('Parks/Show', ['record' => $park, 'transport' => app(TransportConnectionsQuery::class)->get($request->user(), $park), 'can_view_lga' => $request->user()->can('view', $park->lga), 'managers' => User::where('status', 'active')->whereHas('roles', fn ($q) => $q->where('name', 'Park Manager'))->whereHas('parks', fn ($q) => $q->where('parks.id', $park->id))->get(['name']), 'assigned_routes' => $routes, 'route_options' => $canAssign ? Route::where('status', 'active')->orderBy('route_code')->get(['id', 'route_code', 'origin', 'destination']) : [],
             'selected_route_ids' => $canAssign ? $park->routes()->where('routes.status', 'active')->wherePivot('status', 'active')->pluck('routes.id') : [],
             'can_update' => $request->user()->can('update', $park), 'can_archive' => $request->user()->can('delete', $park), 'can_assign_routes' => $canAssign,
             'activities' => $request->user()->can('view_audit_log') ? Activity::forSubject($park)->latest('id')->limit(10)->get(['description', 'created_at']) : []]);

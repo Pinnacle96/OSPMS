@@ -15,8 +15,8 @@ class ArchiveParkAction
         DB::transaction(function () use ($actor, $record) {
             $record = Park::whereKey($record->id)->lockForUpdate()->firstOrFail();
             Gate::forUser($actor)->authorize('delete', $record);
-            if ($record->routes()->withTrashed()->exists()) {
-                throw ValidationException::withMessages(['archive' => 'This record has linked routes. Use its inactive status to preserve the registry history.']);
+            if ($record->routes()->withTrashed()->exists() || DB::table('operator_park')->where('park_id', $record->id)->exists() || DB::table('driver_assignments')->where('park_id', $record->id)->exists() || DB::table('fee_configurations')->where('park_id', $record->id)->exists()) {
+                throw ValidationException::withMessages(['archive' => 'This record has linked history. Use its inactive status to preserve the registry history.']);
             }
             $record->delete();
             activity('parks')->causedBy($actor)->performedOn($record)->log('park_archived');

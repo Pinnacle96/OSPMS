@@ -1,0 +1,7 @@
+import {useForm} from '@inertiajs/react';
+import FormField from '@/Components/Forms/FormField';
+export default function DocumentUploader({kind,id}:{kind:string;id:string}) {
+ const categories=kind==='operators'?['identity_document']:kind==='drivers'?['driver_photo','identity_document']:['vehicle_photo','vehicle_document'];
+ const form=useForm<{category:string;file:File|null}>({category:categories[0],file:null});
+ return <form className="panel-body" onSubmit={e=>{e.preventDefault();form.post('/'+kind+'/'+id+'/documents',{forceFormData:true,onSuccess:()=>{form.reset(); const input=document.getElementById('document-file') as HTMLInputElement; if(input)input.value='';}});}}><h3>Upload private document</h3><p className="muted small">PDF, JPG or PNG, up to 5 MB. Photos must be JPG or PNG. Downloads require access to this profile.</p><div className="form-grid"><FormField id="document-category" label="Document category" error={form.errors.category}><select id="document-category" value={form.data.category} onChange={e=>form.setData('category',e.target.value)}>{categories.map(c=><option key={c} value={c}>{c.replaceAll('_',' ')}</option>)}</select></FormField><FormField id="document-file" label="Document file" error={form.errors.file}><input id="document-file" type="file" required accept=".pdf,.jpg,.jpeg,.png" onChange={e=>form.setData('file',e.target.files?.[0]??null)}/></FormField></div>{form.progress && <p role="status">Uploading {form.progress.percentage}%</p>}<button className="button secondary" disabled={form.processing}>Upload document</button></form>;
+}

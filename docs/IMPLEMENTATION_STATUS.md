@@ -1,15 +1,15 @@
 # Implementation status
 
 Build date: 2026-10-07 (Africa/Lagos)
-Current authorization: continue through Milestone 3. Milestones 0–2 were completed in the foundation run.
+Current authorization: continue through Milestone 6. Milestones 0–3 were completed and integrated previously. Completion validation is dated 2026-10-08 (Africa/Lagos).
 
 - [x] Milestone 0 — Project Bootstrap
 - [x] Milestone 1 — Authentication + RBAC
 - [x] Milestone 2 — Core Shell + State Dashboard Skeleton
 - [x] Milestone 3 — LGAs, Parks & Routes
-- [ ] Milestone 4 — Operators
-- [ ] Milestone 5 — Drivers, Vehicles & Assignments
-- [ ] Milestone 6 — Revenue Heads & Fee Configuration
+- [x] Milestone 4 — Operators
+- [x] Milestone 5 — Drivers, Vehicles & Assignments
+- [x] Milestone 6 — Revenue Heads & Fee Configuration
 - [ ] Milestone 7 — Ticketing + QR
 - [ ] Milestone 8 — Demo Payments + Receipts + Ledger
 - [ ] Milestone 9 — Revenue Dashboards
@@ -47,7 +47,7 @@ Blocked: none for foundation functionality.
 
 Tests: 34 feature tests / 289 assertions passed independently on SQLite and MySQL 8.4.11. Browser login/logout, authorization, validation, scope landing and administration checks passed. Demo reset safeguards and the command itself passed.
 
-Known issues: LGA/Park scope selection now has demo registry records. Operator scopes remain persistence scaffolding and their selectors remain empty until Milestone 4. Operator-to-park inheritance must be extended in that milestone. General/financial audit viewer screens remain Milestone 16.
+Known issues: LGA/Park scope selection now has demo registry records. Operator scope selection and park inheritance are implemented in Milestone 4. General/financial audit viewer screens remain Milestone 16.
 
 ## Milestone 2
 
@@ -73,10 +73,46 @@ Tests: full identity/registry suite passes on SQLite and MySQL 8.4.11; 19 Milest
 
 Known issues: later Operator/Driver/Vehicle, financial, incident and compliance panels deliberately show unavailable or zero states. Routes derive geography through ParkRoute; authorized assignment editors can select from the active global route catalogue, without receiving other parks' relationships. Archives retain their unique business codes and have no restore UI in this milestone. Demo reset preserves existing registry edits and archives. SMTP and unspecified license metadata remain foundation limitations.
 
+## Milestone 4
+
+Completed: SCR-032–035, OperatorPark/OperatorRoute migrations and relationships, registration, approval/suspension, backend references, scoped lists/details/edits, retained approvals, operator account baseline, private documents and audit. Shared master writes fail closed for local users with unmanaged relationships.
+
+In progress: none.
+
+Blocked: none.
+
+Tests: own-operator and geography isolation, approval permissions, action authorization, retained relationships, inactive-master maintenance, private documents and all four screens. See [Milestones 4–6 validation](MILESTONES_4_6_VALIDATION.md).
+
+Known issues: existing SMTP/object storage limitations remain. Full presentation-scale seed is deferred to Milestone 18.
+
+## Milestone 5
+
+Completed: SCR-036–047, Driver/Vehicle/DriverAssignment/MediaAttachment schema, policies/actions, approval/suspension, expiry fields, registration search/filter/pagination, private photographs/documents, validated assignments, explicit ending/history, one active primary rule, scoped transport tabs and real registry counts.
+
+In progress: none.
+
+Blocked: none.
+
+Tests: relationship validation, primary/secondary assignment rules, history retention, simultaneous MySQL requests, server search/scopes, file validation/access, screenshots, browser workflows and desktop/mobile accessibility samples.
+
+Known issues: expiry fields are recorded; scheduled automatic expiry processing and enforcement remain later milestones. Local unassigned registrations use creator access until assignment history provides scope.
+
+## Milestone 6
+
+Completed: SCR-048–055, RevenueHead/FeeConfiguration schema, policies/actions, finance grants, decimal normalization, future fee editing, immutable effective terms, deactivation, backend fee resolver, specificity/priority/effective-date rules and general audit.
+
+In progress: none.
+
+Blocked: none.
+
+Tests: critical fee-resolution unit tests precede ticketing; cover all recommended specificity levels, dates, statuses, no-match/conflicts, exact money, stale model and history protections. Finance authorization and all eight screens are covered.
+
+Known issues: ticket snapshots are implemented/tested in Milestone 7 when tickets exist. SQLite extreme decimal affinity differs from MySQL; maximum precision is checked on MySQL 8.
+
 ## Later milestones
 
 Completed: none.
 In progress: none.
-Blocked: Milestones 4–20 are outside the current authorized implementation; not started.
+Blocked: Milestones 7–20 have not been authorized; not started.
 Tests: no later workflow is claimed as tested.
 Known issues: the complete Phase 1 financial and operational presentation journey is not yet available.

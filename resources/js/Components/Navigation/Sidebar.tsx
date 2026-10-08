@@ -1,9 +1,9 @@
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutDashboard, Users, ShieldCheck, UserRound, KeyRound, ArrowUpRight, LockKeyhole, Map, MapPin, Route } from 'lucide-react';
+import { LayoutDashboard, Users, ShieldCheck, UserRound, KeyRound, ArrowUpRight, LockKeyhole, Map, MapPin, Route, Bus, Link2, Landmark, ReceiptText } from 'lucide-react';
 import Brand from '@/Components/App/Brand';
 import type { SharedProps } from '@/types';
 
-const icons = { dashboard: LayoutDashboard, users: Users, shield: ShieldCheck, user: UserRound, key: KeyRound, geography: Map, parks: MapPin, routes: Route };
+const icons = { dashboard: LayoutDashboard, users: Users, shield: ShieldCheck, user: UserRound, key: KeyRound, geography: Map, parks: MapPin, routes: Route, vehicle: Bus, assignments: Link2, revenue: Landmark, fees: ReceiptText };
 export default function Sidebar({ close }: { close: () => void }) {
     const { props, url } = usePage<SharedProps>();
     const groups = [...new Set(props.navigation.map(item => item.group))];

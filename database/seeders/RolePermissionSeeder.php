@@ -19,6 +19,20 @@ class RolePermissionSeeder extends Seeder
         'Park Manager' => ['view_route'],
     ];
 
+    public const TRANSPORT_GRANTS = [
+        'State Administrator' => ['edit_operator', 'suspend_operator', 'view_driver', 'view_vehicle', 'edit_vehicle', 'suspend_vehicle', 'view_assignment', 'manage_assignment', 'view_revenue_head', 'view_fee_configuration'],
+        'LGA Administrator' => ['edit_operator', 'suspend_operator', 'view_driver', 'view_vehicle', 'edit_vehicle', 'suspend_driver', 'suspend_vehicle', 'view_assignment', 'manage_assignment'],
+        'Park Manager' => ['create_operator', 'edit_operator', 'view_driver', 'view_vehicle', 'edit_vehicle', 'view_assignment', 'manage_assignment'],
+        'Executive Viewer' => [],
+        'Finance Administrator' => ['view_driver', 'view_vehicle', 'view_assignment', 'view_revenue_head', 'manage_revenue_head', 'view_fee_configuration', 'manage_fee_configuration'],
+        'Revenue Officer' => ['view_driver', 'view_vehicle', 'view_assignment', 'view_revenue_head', 'view_fee_configuration'],
+        'Auditor' => ['view_driver', 'view_vehicle', 'view_assignment', 'view_revenue_head', 'view_fee_configuration'],
+        'Ticketing Officer' => ['view_driver', 'view_vehicle', 'view_assignment'],
+        'Collection Agent' => ['view_driver', 'view_vehicle', 'view_assignment'],
+        'Enforcement Officer' => ['view_driver', 'view_vehicle', 'view_assignment'],
+        'Transport Operator' => ['view_driver', 'view_vehicle', 'view_assignment'],
+    ];
+
     public const GRANTS = [
         'Super Administrator' => ['*'],
         'State Administrator' => ['access_statewide', 'view_state_dashboard', 'view_state_revenue', 'view_lga_revenue', 'view_park_revenue', 'view_lga', 'view_park', 'view_operator', 'manage_park', 'create_driver', 'edit_driver', 'approve_driver', 'suspend_driver', 'create_vehicle', 'approve_vehicle', 'create_operator', 'approve_operator', 'view_payment', 'view_audit_log'],
@@ -38,13 +52,13 @@ class RolePermissionSeeder extends Seeder
     public function run(): void
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
-        $permissions = collect(self::GRANTS)->flatten()->merge(collect(self::REGISTRY_GRANTS)->flatten())->reject(fn ($name) => $name === '*')->push('manage_users', 'manage_roles')->unique();
+        $permissions = collect(self::GRANTS)->flatten()->merge(collect(self::REGISTRY_GRANTS)->flatten())->merge(collect(self::TRANSPORT_GRANTS)->flatten())->reject(fn ($name) => $name === '*')->push('manage_users', 'manage_roles')->unique();
         foreach ($permissions as $permission) {
             Permission::findOrCreate($permission, 'web');
         }
         foreach (self::GRANTS as $name => $grants) {
             if ($grants !== ['*']) {
-                $grants = array_merge($grants, self::REGISTRY_GRANTS[$name] ?? []);
+                $grants = array_merge($grants, self::REGISTRY_GRANTS[$name] ?? [], self::TRANSPORT_GRANTS[$name] ?? []);
             }
             Role::findOrCreate($name, 'web')->syncPermissions($grants === ['*'] ? Permission::where('guard_name', 'web')->get() : $grants);
         }

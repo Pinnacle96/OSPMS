@@ -1,5 +1,7 @@
 # Milestone 3 validation report
 
+Historical Milestone 3 report. The current implementation and checks are recorded in [Milestones 4–6 validation](MILESTONES_4_6_VALIDATION.md).
+
 Date: 2026-10-07 (Africa/Lagos). Scope: LGAs, Parks & Routes only, preserving Milestones 0–2.
 
 ## Result

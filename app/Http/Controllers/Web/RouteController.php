@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Domains\Geography\Models\Lga;
 use App\Domains\Identity\Services\UserAccessScopeService;
 use App\Domains\Parks\Models\Park;
+use App\Domains\Reporting\Queries\TransportConnectionsQuery;
 use App\Domains\Routes\Actions\ArchiveRouteAction;
 use App\Domains\Routes\Actions\SaveRouteAction;
 use App\Domains\Routes\Models\Route;
@@ -47,7 +48,7 @@ class RouteController extends Controller
         $parks = $route->parks()->wherePivot('status', 'active');
         $scopes->scopeParks($parks->getQuery(), $request->user());
 
-        return Inertia::render('Routes/Show', ['record' => $route, 'parks' => $request->user()->can('view_park') ? $parks->with('lga:id,name')->orderBy('name')->paginate(10)->withQueryString() : null, 'can_update' => $request->user()->can('update', $route), 'can_archive' => $request->user()->can('delete', $route), 'activities' => $request->user()->can('view_audit_log') ? Activity::forSubject($route)->latest('id')->limit(10)->get(['description', 'created_at']) : []]);
+        return Inertia::render('Routes/Show', ['record' => $route, 'transport' => app(TransportConnectionsQuery::class)->get($request->user(), $route), 'parks' => $request->user()->can('view_park') ? $parks->with('lga:id,name')->orderBy('name')->paginate(10)->withQueryString() : null, 'can_update' => $request->user()->can('update', $route), 'can_archive' => $request->user()->can('delete', $route), 'activities' => $request->user()->can('view_audit_log') ? Activity::forSubject($route)->latest('id')->limit(10)->get(['description', 'created_at']) : []]);
     }
 
     public function edit(Route $route)

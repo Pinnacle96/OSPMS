@@ -20,6 +20,12 @@ class HandleInertiaRequests extends Middleware
             ['LGAs', '/lgas', 'OPERATIONS', 'geography', 'view_lga'],
             ['Parks', '/parks', 'OPERATIONS', 'parks', 'view_park'],
             ['Routes', '/routes', 'OPERATIONS', 'routes', 'view_route'],
+            ['Operators', '/operators', 'OPERATIONS', 'users', 'view_operator'],
+            ['Drivers', '/drivers', 'OPERATIONS', 'user', 'view_driver'],
+            ['Vehicles', '/vehicles', 'OPERATIONS', 'vehicle', 'view_vehicle'],
+            ['Assignments', '/assignments', 'OPERATIONS', 'assignments', 'view_assignment'],
+            ['Revenue heads', '/revenue-heads', 'FINANCE', 'revenue', 'view_revenue_head'],
+            ['Fee configurations', '/fee-configurations', 'FINANCE', 'fees', 'view_fee_configuration'],
             ['Users', '/admin/users', 'ADMINISTRATION', 'users', 'manage_users'],
             ['Roles & permissions', '/admin/roles', 'ADMINISTRATION', 'shield', 'manage_roles'],
         ] as [$label, $href, $group, $icon, $permission]) {

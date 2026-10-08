@@ -1,0 +1,26 @@
+import type { Paginated } from '@/types';
+export type Kind='operators'|'drivers'|'vehicles'|'revenue-heads'|'fee-configurations';
+export type Item={id:number;public_id:string;status:string;created_at:string;name?:string;first_name?:string;last_name?:string;operator_number?:string;driver_number?:string;vehicle_number?:string;registration_number?:string;code?:string;amount?:string;currency?:string;effective_from?:string;effective_to?:string;revenue_head?:Item;lga?:Item;park?:Item;route?:Option;[key:string]:unknown};
+export type Option={id:number|string;name?:string;origin?:string;destination?:string;first_name?:string;last_name?:string;driver_number?:string;registration_number?:string;status?:string};
+export type Options=Record<string,Option[]>;
+export type Assignment={id:number;status:string;starts_at:string;ends_at?:string;is_primary:boolean;driver:Item;vehicle:Item;operator:Item;park:Item;route?:Option};
+export type Document={public_id:string;category:string;original_name:string;mime_type:string;size_bytes:number;created_at:string};
+export type Related={assignments?:Paginated<Assignment>;current_assignments?:Paginated<Assignment>;documents?:Paginated<Document>;parks?:Paginated<Item>;routes?:Paginated<Option & {public_id:string;status:string;pivot:{status:string;park_id:number}}> ;fees?:Paginated<Item>};
+export const catalog:Record<Kind,{title:string;singular:string;statuses:string[]}>={
+ operators:{title:'Operators',singular:'operator',statuses:['pending','approved','suspended','inactive']},
+ drivers:{title:'Drivers',singular:'driver',statuses:['pending','active','suspended','expired','blacklisted','inactive']},
+ vehicles:{title:'Vehicles',singular:'vehicle',statuses:['pending','active','suspended','expired','inactive']},
+ 'revenue-heads':{title:'Revenue heads',singular:'revenue head',statuses:['active','inactive']},
+ 'fee-configurations':{title:'Fee configurations',singular:'fee configuration',statuses:['draft','active','expired','inactive']},
+};
+export function itemName(r:Item):string { return r.name ?? (r.first_name ? r.first_name+' '+r.last_name:r.registration_number ?? (r.amount ? (r.revenue_head?.name ?? 'Fee')+' · NGN '+r.amount:r.public_id)); }
+export function optionName(r:Option):string { return r.name ?? (r.first_name ? r.first_name+' '+r.last_name+(r.driver_number?' · '+r.driver_number:''):r.registration_number ?? r.origin+' → '+r.destination); }
+export type Field={key:string;label:string;required?:boolean;type?:string;options?:string[];source?:string;max?:number};
+export const vehicleTypes=['bus','minibus','taxi','tricycle','motorcycle','other'];
+export const fields:Record<Kind,Field[]>={
+ operators:[{key:'name',label:'Operator name',required:true,max:190},{key:'registration_number',label:'Registration number',max:100},{key:'contact_person',label:'Contact person',max:150},{key:'phone',label:'Telephone',type:'tel',max:30},{key:'email',label:'Email address',type:'email',max:190},{key:'address',label:'Address',type:'textarea',max:5000}],
+ drivers:[{key:'first_name',label:'First name',required:true,max:100},{key:'middle_name',label:'Middle name',max:100},{key:'last_name',label:'Last name',required:true,max:100},{key:'phone',label:'Telephone',required:true,type:'tel',max:30},{key:'email',label:'Email address',type:'email',max:190},{key:'residential_address',label:'Residential address',type:'textarea',max:5000},{key:'licence_number',label:'Licence number',max:100},{key:'licence_expiry',label:'Licence expiry',type:'date'},{key:'emergency_contact_name',label:'Emergency contact name',max:150},{key:'emergency_contact_phone',label:'Emergency contact telephone',type:'tel',max:30},{key:'next_of_kin',label:'Next of kin',max:150}],
+ vehicles:[{key:'registration_number',label:'Registration number',required:true,max:30},{key:'vehicle_type',label:'Vehicle type',required:true,options:vehicleTypes},{key:'make',label:'Make',max:100},{key:'model',label:'Model',max:100},{key:'colour',label:'Colour',max:50},{key:'manufacture_year',label:'Manufacture year',type:'number'},{key:'owner_name',label:'Owner name',max:190},{key:'owner_phone',label:'Owner telephone',type:'tel',max:30},{key:'roadworthiness_expiry',label:'Roadworthiness expiry',type:'date'},{key:'insurance_expiry',label:'Insurance expiry',type:'date'}],
+ 'revenue-heads':[{key:'code',label:'Revenue code',required:true,max:50},{key:'name',label:'Revenue head name',required:true,max:190},{key:'description',label:'Description',type:'textarea',max:5000},{key:'frequency',label:'Frequency',required:true,options:['daily','per_entry','per_trip','one_time','periodic','other']}],
+ 'fee-configurations':[{key:'revenue_head_id',label:'Revenue head',required:true,source:'revenue_heads'},{key:'amount',label:'Amount (NGN)',required:true},{key:'currency',label:'Currency',required:true,options:['NGN']},{key:'vehicle_type',label:'Vehicle type',options:vehicleTypes},{key:'lga_id',label:'Local government',source:'lgas'},{key:'park_id',label:'Park',source:'parks'},{key:'route_id',label:'Route',source:'routes'},{key:'priority',label:'Priority',type:'number',required:true},{key:'effective_from',label:'Effective from (UTC)',type:'datetime-local',required:true},{key:'effective_to',label:'Effective to (UTC)',type:'datetime-local'}],
+};

@@ -2,15 +2,27 @@
 
 namespace App\Providers;
 
+use App\Domains\Assignments\Models\DriverAssignment;
+use App\Domains\Assignments\Policies\AssignmentPolicy;
+use App\Domains\Drivers\Models\Driver;
+use App\Domains\Drivers\Policies\DriverPolicy;
 use App\Domains\Geography\Models\Lga;
 use App\Domains\Geography\Policies\LgaPolicy;
 use App\Domains\Identity\Models\User;
 use App\Domains\Identity\Policies\RolePolicy;
 use App\Domains\Identity\Policies\UserPolicy;
+use App\Domains\Operators\Models\Operator;
+use App\Domains\Operators\Policies\OperatorPolicy;
 use App\Domains\Parks\Models\Park;
 use App\Domains\Parks\Policies\ParkPolicy;
+use App\Domains\Revenue\Models\FeeConfiguration;
+use App\Domains\Revenue\Models\RevenueHead;
+use App\Domains\Revenue\Policies\FeeConfigurationPolicy;
+use App\Domains\Revenue\Policies\RevenueHeadPolicy;
 use App\Domains\Routes\Models\Route;
 use App\Domains\Routes\Policies\RoutePolicy;
+use App\Domains\Vehicles\Models\Vehicle;
+use App\Domains\Vehicles\Policies\VehiclePolicy;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -34,6 +46,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(Operator::class, OperatorPolicy::class);
+        Gate::policy(Driver::class, DriverPolicy::class);
+        Gate::policy(Vehicle::class, VehiclePolicy::class);
+        Gate::policy(DriverAssignment::class, AssignmentPolicy::class);
+        Gate::policy(RevenueHead::class, RevenueHeadPolicy::class);
+        Gate::policy(FeeConfiguration::class, FeeConfigurationPolicy::class);
         Gate::policy(Lga::class, LgaPolicy::class);
         Gate::policy(Park::class, ParkPolicy::class);
         Gate::policy(Route::class, RoutePolicy::class);

@@ -9,6 +9,7 @@ use App\Domains\Geography\Queries\LgaListQuery;
 use App\Domains\Identity\Services\UserAccessScopeService;
 use App\Domains\Parks\Models\Park;
 use App\Domains\Reporting\Queries\LocalDashboardQuery;
+use App\Domains\Reporting\Queries\TransportConnectionsQuery;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Operations\RegistryFilterRequest;
 use App\Http\Requests\Operations\SaveLgaRequest;
@@ -43,7 +44,7 @@ class LgaController extends Controller
         Gate::authorize('view', $lga);
         $parks = $request->user()->can('view_park') ? app(UserAccessScopeService::class)->scopeParks(Park::query(), $request->user())->where('lga_id', $lga->id)->orderBy('name')->paginate(10)->withQueryString() : null;
 
-        return Inertia::render('Lgas/Show', ['record' => $lga, 'parks' => $parks, 'can_update' => $request->user()->can('update', $lga), 'can_archive' => $request->user()->can('delete', $lga), 'activities' => $request->user()->can('view_audit_log') ? Activity::forSubject($lga)->latest('id')->limit(10)->get(['description', 'created_at']) : []]);
+        return Inertia::render('Lgas/Show', ['record' => $lga, 'transport' => app(TransportConnectionsQuery::class)->get($request->user(), $lga), 'parks' => $parks, 'can_update' => $request->user()->can('update', $lga), 'can_archive' => $request->user()->can('delete', $lga), 'activities' => $request->user()->can('view_audit_log') ? Activity::forSubject($lga)->latest('id')->limit(10)->get(['description', 'created_at']) : []]);
     }
 
     public function edit(Lga $lga)

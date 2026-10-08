@@ -8,6 +8,7 @@ import StatusBadge from '@/Components/Data/StatusBadge';
 import ConfirmDialog from '@/Components/Feedback/ConfirmDialog';
 import { EmptyState } from '@/Components/Feedback/States';
 import RouteAssignment from './RouteAssignment';
+import {itemName} from '@/types/catalog';
 import { dateTime } from '@/lib/formatters';
 import { usePermissions } from '@/hooks/usePermissions';
 import type { SharedProps } from '@/types';
@@ -17,7 +18,7 @@ const tabs:Record<Kind,string[]> = {
     parks:['Overview','Operators','Drivers','Vehicles','Routes','Tickets','Revenue','Incidents','Activity'],
     routes:['Overview','Parks','Operators','Activity'],
 };
-export default function RegistryDetail({ kind,record,parks,assigned_routes,route_options=[],selected_route_ids=[],can_assign_routes=false,can_update,can_archive,activities,can_view_lga=false,managers=[] }: DetailProps & {kind:Kind;can_view_lga?:boolean;managers?:{name:string}[]}) {
+export default function RegistryDetail({ kind,record,parks,transport={},assigned_routes,route_options=[],selected_route_ids=[],can_assign_routes=false,can_update,can_archive,activities,can_view_lga=false,managers=[] }: DetailProps & {kind:Kind;can_view_lga?:boolean;managers?:{name:string}[]}) {
     const [tab,setTab]=useState('Overview');
     const [confirm,setConfirm]=useState(false);
     const [archiveError,setArchiveError]=useState('');
@@ -45,7 +46,11 @@ export default function RegistryDetail({ kind,record,parks,assigned_routes,route
         }}>{tabs[kind].map((name,index) => <button key={name} id={`registry-tab-${index}`} role="tab" type="button" aria-selected={tab === name} aria-controls="registry-tab-panel" tabIndex={tab === name ? 0:-1} onClick={() => setTab(name)}>{name}</button>)}</div>
         <div role="tabpanel" id="registry-tab-panel" aria-labelledby={`registry-tab-${tabs[kind].indexOf(tab)}`} tabIndex={0}>
         {tab === 'Overview' ? <div className="detail-grid"><section className="panel"><div className="panel-header"><div><h2>{meta.singular} details</h2><p>Core registration and administrative information</p></div></div><div className="panel-body"><dl className="detail-list">{fields.map(([label,value]) => <div key={label}><dt>{label}</dt><dd>{value || 'Not recorded'}</dd></div>)}</dl>{kind === 'parks' && can_view_lga && record.lga?.public_id && <p className="registry-related-link"><Link className="text-link small" href={`/lgas/${record.lga.public_id}`}>View local government profile →</Link></p>}</div></section>
-            <section className="panel"><div className="panel-header"><div><h2>Registry connections</h2><p>Related records and operational context</p></div></div><div className="panel-body"><p className="muted small">{kind === 'parks' ? 'Approved transport routes are managed in the Routes tab.':`${parks?.total ?? 0} associated parks are available to your account.`}</p><p className="notice">Operator, Driver, Vehicle and financial services are not available yet. Revenue and collection measures remain zero.</p>{can_archive && <><button className="button secondary" type="button" onClick={() => setConfirm(true)}><Archive size={15} />Archive {meta.singular}</button><p className="field-hint">Only records without linked history can be archived. Otherwise use inactive status.</p></>}</div></section></div> :
+            <section className="panel"><div className="panel-header"><div><h2>Registry connections</h2><p>Related records and operational context</p></div></div><div className="panel-body"><p className="muted small">{kind === 'parks' ? 'Approved transport routes are managed in the Routes tab.':`${parks?.total ?? 0} associated parks are available to your account.`}</p><p className="notice">Related transport registrations are available in their profile tabs. Revenue and collection measures remain zero until ticketing and payments are enabled.</p>{can_archive && <><button className="button secondary" type="button" onClick={() => setConfirm(true)}><Archive size={15} />Archive {meta.singular}</button><p className="field-hint">Only records without linked history can be archived. Otherwise use inactive status.</p></>}</div></section></div> :
+        (tab === 'Operators' || tab === 'Drivers' || tab === 'Vehicles') && transport[tab.toLowerCase() as 'operators'|'drivers'|'vehicles'] ? (() => {
+            const key=tab.toLowerCase() as 'operators'|'drivers'|'vehicles'; const page=transport[key]!;
+            return <section className="panel"><div className="panel-header"><div><h2>{tab}</h2><p>Related registrations within your access scope</p></div></div><DataTable rows={page.data} page={page} rowKey={r=>r.public_id} columns={[{key:'name',label:'Registration',render:r=><Link className="text-link" href={'/'+key+'/'+r.public_id}>{itemName(r)}</Link>},{key:'status',label:'Status',render:r=><StatusBadge status={r.status}/>}]} /></section>;
+        })() :
         tab === 'Parks' ? <section className="panel"><div className="panel-header"><div><h2>Associated parks</h2><p>Only parks within your access scope are shown</p></div></div>{parks ? <DataTable rows={parks.data} page={parks} rowKey={park => park.public_id} columns={[
             { key:'name',label:'Park',render:park => <Link className="text-link" href={`/parks/${park.public_id}`}>{park.name}</Link> },
             { key:'code',label:'Park code',render:park => park.park_code },

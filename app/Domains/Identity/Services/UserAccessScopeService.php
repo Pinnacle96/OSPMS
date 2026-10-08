@@ -39,8 +39,39 @@ class UserAccessScopeService
 
     public function scopeOperators(Builder $query, User $user, AccessLevel $level = AccessLevel::View): Builder
     {
-        // Operator-to-park relationships are introduced at Milestone 4. Until then, fail closed to explicit operator access.
-        return $this->isStatewide($user) ? $query : $query->whereIn('operators.id', $this->ids($user, 'operators', $level));
+        if ($this->isStatewide($user)) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $q) use ($user, $level) {
+            $q->whereIn('operators.id', $this->ids($user, 'operators', $level))
+                ->orWhereHas('parks', fn (Builder $parks) => $this->scopeParks($parks, $user, $level)->where('operator_park.status', 'active'));
+        });
+    }
+
+    public function scopeAssignments(Builder $query, User $user, AccessLevel $level = AccessLevel::View): Builder
+    {
+        if ($this->isStatewide($user)) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $q) use ($user, $level) {
+            $q->whereIn('park_id', $this->scopeParks(Park::query(), $user, $level)->select('parks.id'));
+            // Operator access grants its own relationships only, never another operator's assignments in the same park.
+            $q->orWhereIn('operator_id', $this->ids($user, 'operators', $level));
+        });
+    }
+
+    public function scopeParticipants(Builder $query, User $user, AccessLevel $level = AccessLevel::View): Builder
+    {
+        if ($this->isStatewide($user)) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $q) use ($user, $level) {
+            $q->whereHas('assignments', fn (Builder $a) => $this->scopeAssignments($a, $user, $level));
+            $q->orWhere(fn (Builder $owned) => $owned->where('created_by', $user->id)->whereDoesntHave('assignments'));
+        });
     }
 
     public function canAccessLga(User $user, Lga $lga, AccessLevel $level = AccessLevel::View): bool

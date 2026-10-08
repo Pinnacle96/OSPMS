@@ -2,12 +2,14 @@
 
 namespace App\Domains\Reporting\Queries;
 
+use App\Domains\Drivers\Models\Driver;
 use App\Domains\Geography\Models\Lga;
 use App\Domains\Identity\Models\User;
 use App\Domains\Identity\Services\UserAccessScopeService;
 use App\Domains\Operators\Models\Operator;
 use App\Domains\Parks\Enums\ParkStatus;
 use App\Domains\Parks\Models\Park;
+use App\Domains\Vehicles\Models\Vehicle;
 use Illuminate\Support\Facades\Gate;
 use Spatie\Activitylog\Models\Activity;
 
@@ -23,8 +25,8 @@ class StateDashboardQuery
             ['label' => "Today's transactions", 'value' => 0, 'icon' => 'receipt', 'note' => 'No financial records'],
             ['label' => 'Active parks', 'value' => $scopes->scopeParks(Park::query(), $user)->where('status', ParkStatus::Active->value)->count(), 'icon' => 'park', 'note' => 'Registered operational parks'],
             ['label' => 'Registered operators', 'value' => $scopes->scopeOperators(Operator::query(), $user)->count(), 'icon' => 'users', 'note' => 'Within your data scope'],
-            ['label' => 'Registered vehicles', 'value' => 0, 'icon' => 'vehicle', 'note' => 'Registry not yet enabled'],
-            ['label' => 'Registered drivers', 'value' => 0, 'icon' => 'driver', 'note' => 'Registry not yet enabled'],
+            ['label' => 'Registered vehicles', 'value' => $scopes->scopeParticipants(Vehicle::query(), $user)->count(), 'icon' => 'vehicle', 'note' => 'Within your data scope'],
+            ['label' => 'Registered drivers', 'value' => $scopes->scopeParticipants(Driver::query(), $user)->count(), 'icon' => 'driver', 'note' => 'Within your data scope'],
             ['label' => 'Successful payments', 'value' => 0, 'icon' => 'check', 'note' => 'No payment records'],
             ['label' => 'Failed payments', 'value' => 0, 'icon' => 'alert', 'note' => 'No payment records'],
             ['label' => 'Pending reconciliation', 'value' => 0, 'icon' => 'reconcile', 'note' => 'No items awaiting review'],

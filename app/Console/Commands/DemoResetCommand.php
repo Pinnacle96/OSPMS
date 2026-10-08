@@ -7,6 +7,7 @@ use App\Domains\Identity\Models\User;
 use Database\Seeders\DemoUserSeeder;
 use Database\Seeders\RegistryDemoSeeder;
 use Database\Seeders\RolePermissionSeeder;
+use Database\Seeders\TransportRevenueDemoSeeder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -42,6 +43,7 @@ class DemoResetCommand extends Command
             }
             activity('system')->log('demo_identity_reset');
             $this->call('db:seed', ['--class' => RegistryDemoSeeder::class, '--force' => true]);
+            $this->call('db:seed', ['--class' => TransportRevenueDemoSeeder::class, '--force' => true]);
         });
         $this->info('Demo identity and registry access baseline restored. Existing registry edits and audit history preserved. Financial reset is deferred.');
 
