@@ -3,6 +3,7 @@
 namespace App\Domains\Payments\Services;
 
 use App\Domains\Finance\Models\FinancialTransaction;
+use App\Domains\Finance\Models\Refund;
 use App\Domains\Payments\Models\Receipt;
 use App\Domains\Ticketing\Services\TicketExpiryService;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
@@ -35,7 +36,7 @@ class ReceiptVerificationService
     {
         $p = $r->payment;
         $t = $r->ticket;
-        $valid = $p->status->value === 'successful' && FinancialTransaction::where('payment_id', $p->id)->where('transaction_type', 'payment')->where('direction', 'credit')->exists();
+        $valid = ! Refund::where('payment_id', $p->id)->where('status', 'successful')->exists() && $p->status->value === 'successful' && FinancialTransaction::where('payment_id', $p->id)->where('transaction_type', 'payment')->where('direction', 'credit')->exists();
 
         return ['receipt_number' => $r->receipt_number, 'payment_reference' => $p->payment_reference, 'ticket_reference' => $t->ticket_reference, 'amount' => $p->amount, 'currency' => $p->currency, 'channel' => $p->channel, 'payment_status' => $p->status->value, 'paid_at' => $p->paid_at, 'issued_at' => $r->issued_at, 'ticket_status' => app(TicketExpiryService::class)->status($t)->value, 'vehicle' => $t->context_snapshot['vehicle']['registration'] ?? null, 'park' => $t->context_snapshot['park']['name'] ?? null, 'fee_name' => $t->fee_name_snapshot, 'demo' => $p->provider === 'demo', 'valid' => $valid, 'result' => $valid ? 'Valid demo receipt' : 'Receipt not valid'];
     }

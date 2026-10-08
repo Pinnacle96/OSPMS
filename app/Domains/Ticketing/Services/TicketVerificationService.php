@@ -2,6 +2,7 @@
 
 namespace App\Domains\Ticketing\Services;
 
+use App\Domains\Finance\Models\Refund;
 use App\Domains\Ticketing\Enums\TicketPaymentStatus;
 use App\Domains\Ticketing\Enums\TicketStatus;
 use App\Domains\Ticketing\Models\Ticket;
@@ -38,7 +39,7 @@ class TicketVerificationService
     public function safe(Ticket $ticket): array
     {
         $status = app(TicketExpiryService::class)->status($ticket);
-        $valid = $status === TicketStatus::Paid && $ticket->payment_status === TicketPaymentStatus::Paid;
+        $valid = ! Refund::where('ticket_id', $ticket->id)->where('status', 'successful')->exists() && $status === TicketStatus::Paid && $ticket->payment_status === TicketPaymentStatus::Paid;
         $awaiting = $status === TicketStatus::Pending && in_array($ticket->payment_status, [TicketPaymentStatus::Unpaid, TicketPaymentStatus::Pending, TicketPaymentStatus::Failed], true);
 
         return [

@@ -1,7 +1,7 @@
 # Implementation status
 
 Build date: 2026-10-08 (Africa/Lagos)
-Current authorization: Milestone 10 — Settlement + Reconciliation. Milestones 0–9 were completed and integrated previously.
+Current authorization: Milestone 11 — Refunds & Adjustments. Milestones 0–10 were completed and integrated previously.
 
 - [x] Milestone 0 — Project Bootstrap
 - [x] Milestone 1 — Authentication + RBAC
@@ -14,7 +14,7 @@ Current authorization: Milestone 10 — Settlement + Reconciliation. Milestones 
 - [x] Milestone 8 — Demo Payments + Receipts + Ledger
 - [x] Milestone 9 — Revenue Dashboards
 - [x] Milestone 10 — Settlement + Reconciliation
-- [ ] Milestone 11 — Refunds & Adjustments
+- [x] Milestone 11 — Refunds & Adjustments
 - [ ] Milestone 12 — Enforcement PWA
 - [ ] Milestone 13 — Incidents & Violations
 - [ ] Milestone 14 — Complaints + Notifications
@@ -157,10 +157,22 @@ Tests: final MySQL 160 passed / 3,087 assertions; SQLite 158 passed / 3,078 asse
 
 Known issues: demo settlement fees are zero and government account references are unset; no real funds, external settlement feed, live treasury integration or invented allocation policy is involved. Non-demo processing requires the configured database worker. Resolving a finding acknowledges a reviewed outcome and retains original discrepancy amounts; it does not adjust funds. General audit viewer screens remain Milestone 16. Existing SMTP/object storage/license/expiry-policy limitations remain. Production volume/load testing is part of the later QA milestone.
 
+## Milestone 11
+
+Completed: SCR-079–084; exact Refund/FinancialAdjustment tables, enums and retained models; independent approval/rejection; scoped supervisor refund requests and finance adjustment requests; partial/full demo processing with pending/failure/retry states; source-linked immutable ledger corrections; decimal balance reservations across refunds/adjustments/reversals; actor/payload-bound confirmations; complete general and chained financial audit; permission-aware navigation, source links and paginated history; correction-aware verification, dashboards, settlement eligibility and fresh reconciliation evidence; retained demo seeds/reset behavior.
+
+In progress: none.
+
+Blocked: none for this milestone.
+
+Tests: MySQL 189 passed / 3,340 assertions; SQLite 186 passed / 3,328 assertions with three MySQL-only precision skips. Twenty-nine new workflow tests, five real MySQL races, six desktop/mobile screens, 16 accessibility samples with zero violations, 311 PHP syntax checks, lint/type/build, migration and dependency checks passed. Details are recorded in [Milestone 11 validation](MILESTONE_11_VALIDATION.md).
+
+Known issues: refund processing is demo-only and refuses production; no real provider refund, treasury allocation rule, bank account or approval threshold is configured. Any successful refund invalidates ticket/receipt verification; original receipt amounts and completed reconciliation snapshots remain historical. Adjustments do not reactivate tickets or transfer provider funds. ADR-014 resolves the schema/screen wording on approval versus successful refund debits. Existing SMTP/object storage/license/expiry-policy limitations remain.
+
 ## Later milestones
 
 Completed: none.
 In progress: none.
-Blocked: Milestones 11–20 have not been authorized; not started.
+Blocked: Milestones 12–20 have not been authorized; not started.
 Tests: no later workflow is claimed as tested.
 Known issues: the complete Phase 1 financial and operational presentation journey is not yet available.

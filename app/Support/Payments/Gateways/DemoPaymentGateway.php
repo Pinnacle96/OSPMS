@@ -2,11 +2,13 @@
 
 namespace App\Support\Payments\Gateways;
 
+use App\Domains\Finance\Enums\RefundStatus;
 use App\Domains\Payments\Enums\PaymentStatus;
 use App\Domains\Payments\Models\Payment;
 use App\Support\Payments\Contracts\PaymentGateway;
 use App\Support\Payments\DTOs\PaymentInitiationResult;
 use App\Support\Payments\DTOs\PaymentVerificationResult;
+use App\Support\Payments\DTOs\RefundResult;
 use Illuminate\Validation\ValidationException;
 
 class DemoPaymentGateway implements PaymentGateway
@@ -19,6 +21,15 @@ class DemoPaymentGateway implements PaymentGateway
         }
 
         return new PaymentInitiationResult('DEMO-'.$reference, $status, ['demo' => true, 'scenario' => $scenario]);
+    }
+
+    public function refund(string $paymentReference, string $refundReference, string $amount, string $currency, string $scenario): RefundResult
+    {
+        if (! in_array($scenario, ['successful', 'failed', 'processing'], true)) {
+            throw ValidationException::withMessages(['scenario' => 'Select a supported demo outcome.']);
+        }
+
+        return new RefundResult($refundReference, 'DEMO-'.$refundReference, $amount, $currency, RefundStatus::from($scenario));
     }
 
     public function verify(string $reference): PaymentVerificationResult

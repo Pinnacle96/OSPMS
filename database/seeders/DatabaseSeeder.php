@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             $this->call(TicketDemoSeeder::class);
             $this->call(PaymentDemoSeeder::class);
             $this->call(ReconciliationDemoSeeder::class);
+            $this->call(CorrectionDemoSeeder::class);
         }
     }
 }

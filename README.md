@@ -2,7 +2,7 @@
 
 Government-facing park operations and revenue administration platform. Technology Solution by **Pinnacle Tech Hub**.
 
-This repository currently implements **Milestones 0–10**: the Laravel foundation, authentication/RBAC, account and user administration, scoped geography and transport registries, assignments, private documents, revenue configuration, tickets, demo payments, receipts, an immutable ledger, revenue dashboards, demo settlement batches and audited reconciliation. Refunds/adjustments, enforcement and reports remain in their approved later milestones.
+This repository currently implements **Milestones 0–11**: the Laravel foundation, authentication/RBAC, account and user administration, scoped geography and transport registries, assignments, private documents, revenue configuration, tickets, demo payments, receipts, an immutable ledger, revenue dashboards, demo settlement batches, audited reconciliation, refunds and financial adjustments. Enforcement and reports remain in their approved later milestones.
 
 Government retains policy, regulatory authority and ownership of operational and financial data. Pinnacle Tech Hub is the technology provider.
 
@@ -15,7 +15,7 @@ Read these before changing functionality, in this precedence order:
 3. [Screen Inventory v1.0](docs/SCREEN_INVENTORY_v1.0.md)
 4. [Architecture & Implementation Plan v1.0](docs/ARCHITECTURE_IMPLEMENTATION_PLAN_v1.0.md)
 
-Implementation notes: [Decisions](docs/DECISIONS.md), [Required decisions](docs/DECISIONS_REQUIRED.md), [Status](docs/IMPLEMENTATION_STATUS.md), [Milestone 10 validation](docs/MILESTONE_10_VALIDATION.md), [Milestone 9 validation](docs/MILESTONE_9_VALIDATION.md), [Milestone 8 validation](docs/MILESTONE_8_VALIDATION.md), [Milestone 7 validation](docs/MILESTONE_7_VALIDATION.md), [Milestones 4–6 validation](docs/MILESTONES_4_6_VALIDATION.md), [Milestone 3 validation](docs/MILESTONE_3_VALIDATION.md), [Foundation validation](docs/VALIDATION.md).
+Implementation notes: [Decisions](docs/DECISIONS.md), [Required decisions](docs/DECISIONS_REQUIRED.md), [Status](docs/IMPLEMENTATION_STATUS.md), [Milestone 11 validation](docs/MILESTONE_11_VALIDATION.md), [Milestone 10 validation](docs/MILESTONE_10_VALIDATION.md), [Milestone 9 validation](docs/MILESTONE_9_VALIDATION.md), [Milestone 8 validation](docs/MILESTONE_8_VALIDATION.md), [Milestone 7 validation](docs/MILESTONE_7_VALIDATION.md), [Milestones 4–6 validation](docs/MILESTONES_4_6_VALIDATION.md), [Milestone 3 validation](docs/MILESTONE_3_VALIDATION.md), [Foundation validation](docs/VALIDATION.md).
 
 ## Stack and architecture
 
@@ -155,7 +155,7 @@ Open an eligible ticket and select **Demo payment**. Ticketing Officers and Coll
 
 Open **Finance → Payments** to search and filter permitted payment history. Receipt detail offers HTML print, a server-generated PDF and a public QR verification link. Downloads require receipt permission and the ticket's original scope. The public receipt page excludes private identity, account, token and audit data. It proves the recorded payment independently of ticket expiry; the ticket verification page separately determines validity for use. Reversing a payment invalidates both current verification results while retaining the original receipt and credit.
 
-Finance Administrator and Super Administrator can perform a controlled **demo reversal**, with a required reason and confirmation. It creates a linked debit and retains the original credit. Collectors and read-only roles cannot reverse. Open **Finance → Ledger** for scoped, read-only credits and reversals, search, filters, ordering and transaction traceability. LGA Administrators see their permitted historical geography; collector and Park Manager defaults have no ledger access. Refund approvals, adjustments, settlement and reconciliation remain later milestones.
+Finance Administrator and Super Administrator can perform a controlled **demo reversal**, with a required reason and confirmation. It creates a linked debit and retains the original credit. Collectors and read-only roles cannot reverse. Open **Finance → Ledger** for scoped, read-only credits and reversals, search, filters, ordering and transaction traceability. LGA Administrators see their permitted historical geography; collector and Park Manager defaults have no ledger access. Refunds, adjustments, settlement and reconciliation are available to their authorized roles.
 
 Receipt PDFs use Dompdf in PHP with remote resources, embedded PHP and JavaScript disabled. No Node service or external rendering service is required. Keep `storage/framework/cache` writable. Secure QR links depend on the configured reachable `APP_URL`; do not place verification URLs in analytics or access logs exposed to other users.
 
@@ -236,6 +236,20 @@ Start a reconciliation run for inclusive local dates (maximum 366 days), optiona
 A completed run is immutable and returns its existing findings on duplicate delivery. A new run captures current committed sources. The overview uses the latest finding per obligation/source, so reruns do not duplicate totals; run details preserve each earlier snapshot. Review requires an outcome and reason, stores actor/time, and appends both general and financial audit events. `Reconciled` means a manually reviewed outcome; original exception types and monetary differences remain. It never adjusts funds or overwrites historical amounts.
 
 Seeding/reset ensures a clean match, a missing-payment ticket and an amount mismatch, while preserving prior settlements, runs, reviews and audit history. General financial audit viewers remain Milestone 16. See [Milestone 10 validation](docs/MILESTONE_10_VALIDATION.md) and ADR-013 for matching definitions and checks.
+
+## Refunds and adjustments
+
+Milestone 11 implements SCR-079–084. Open **Finance → Refunds** or **Finance → Adjustments** for paginated request history, reference/status/date filters and sorting. Request a refund from a successful demo payment detail; request an adjustment from a ledger detail, which supplies its public source ID.
+
+Finance and Super Administrators can request corrections, independently review another user's requests and process approved demo refunds. State/LGA/Park supervisors can request refunds within their manage scope. Auditors inspect both workflows without mutation rights. The requester cannot approve or reject their own request, including Super Administrator. Every request and decision requires a reason and explicit confirmation.
+
+Refund approval reserves the amount; only successful demo processing appends a debit linked to the original payment credit. Failed/processing outcomes add no debit. A failed attempt may be retried after revalidating available funds; processing may be resolved with another confirmed outcome. Repeated confirmations return the retained canonical result. No real funds are sent and demo processing refuses production.
+
+Adjustments explicitly select credit or debit. Independent approval immediately appends the corresponding ledger entry linked to the exact selected original transaction. Rejection adds no entry. Amounts use decimal strings, and debit requests/refunds share a serialized balance check so they cannot overdraw the payment ledger. Credit adjustments never increase the provider's original refund entitlement. Corrections do not rewrite original payment amounts, receipts, ledger entries or settlement/reconciliation history.
+
+Any successful refund, including partial refunds, invalidates current receipt and ticket verification for use. Original receipt amounts remain historical. A fully refunded payment and ticket payment status become refunded; the ticket lifecycle status is retained. Reversals refuse payments with active requests or retained corrections. Dashboards include correction credits/debits automatically. A fresh reconciliation run records refund/adjustment evidence as a reversal exception, including corrections to older payments; completed runs remain unchanged. New demo batches exclude corrected payment sources.
+
+The synthetic seed includes an independently approved partial demo refund and a pending debit adjustment. Repeated seeds and demo reset preserve their decisions and audit history. See [Milestone 11 validation](docs/MILESTONE_11_VALIDATION.md) and ADR-014. No live refund provider, treasury rule or approval threshold is configured.
 
 ## Queues and scheduler
 

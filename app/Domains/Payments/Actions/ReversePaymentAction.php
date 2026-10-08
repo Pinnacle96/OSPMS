@@ -3,7 +3,9 @@
 namespace App\Domains\Payments\Actions;
 
 use App\Domains\Audit\Services\FinancialAuditService;
+use App\Domains\Finance\Models\FinancialAdjustment;
 use App\Domains\Finance\Models\FinancialTransaction;
+use App\Domains\Finance\Models\Refund;
 use App\Domains\Identity\Models\User;
 use App\Domains\Payments\Events\PaymentReversed;
 use App\Domains\Payments\Models\Payment;
@@ -31,6 +33,11 @@ class ReversePaymentAction
                 throw ValidationException::withMessages(['reason' => 'Only a successful demo payment can be reversed.']);
             }
             $credit = FinancialTransaction::where('payment_id', $p->id)->where('transaction_type', 'payment')->where('direction', 'credit')->lockForUpdate()->firstOrFail();
+            $refunds = Refund::where('payment_id', $p->id)->whereIn('status', ['requested', 'approved', 'processing', 'successful'])->lockForUpdate()->get();
+            $adjustments = FinancialAdjustment::whereIn('original_transaction_id', FinancialTransaction::where('payment_id', $p->id)->select('id'))->whereIn('status', ['requested', 'approved'])->lockForUpdate()->get();
+            if ($refunds->isNotEmpty() || $adjustments->isNotEmpty() || FinancialTransaction::where('payment_id', $p->id)->where('transaction_type', '!=', 'payment')->lockForUpdate()->first()) {
+                throw ValidationException::withMessages(['reason' => 'This payment has financial corrections or pending requests. Use the refund or adjustment workflow.']);
+            }
             FinancialTransaction::create(['transaction_reference' => 'REV-'.$p->payment_reference, 'ticket_id' => $ticket->id, 'payment_id' => $p->id, 'parent_transaction_id' => $credit->id, 'transaction_type' => 'reversal', 'direction' => 'debit', 'amount' => $p->amount, 'currency' => $p->currency, 'occurred_at' => now(), 'description' => 'Controlled demo payment reversal', 'source' => 'administrator', 'created_by' => $actor->id, 'metadata' => ['demo' => true, 'reason' => $reason], 'created_at' => now()]);
             $p->update(['status' => 'reversed', 'reversed_at' => now()]);
             $ticket->update(['ticket_status' => 'reversed', 'payment_status' => 'reversed']);

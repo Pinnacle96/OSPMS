@@ -6,9 +6,13 @@ use App\Domains\Assignments\Models\DriverAssignment;
 use App\Domains\Assignments\Policies\AssignmentPolicy;
 use App\Domains\Drivers\Models\Driver;
 use App\Domains\Drivers\Policies\DriverPolicy;
+use App\Domains\Finance\Models\FinancialAdjustment;
 use App\Domains\Finance\Models\FinancialTransaction;
+use App\Domains\Finance\Models\Refund;
 use App\Domains\Finance\Models\Settlement;
+use App\Domains\Finance\Policies\FinancialAdjustmentPolicy;
 use App\Domains\Finance\Policies\FinancialTransactionPolicy;
+use App\Domains\Finance\Policies\RefundPolicy;
 use App\Domains\Finance\Policies\SettlementPolicy;
 use App\Domains\Geography\Models\Lga;
 use App\Domains\Geography\Policies\LgaPolicy;
@@ -58,6 +62,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::policy(Refund::class, RefundPolicy::class);
+        Gate::policy(FinancialAdjustment::class, FinancialAdjustmentPolicy::class);
         Gate::policy(Settlement::class, SettlementPolicy::class);
         Gate::policy(ReconciliationRun::class, ReconciliationPolicy::class);
         Gate::policy(ReconciliationItem::class, ReconciliationPolicy::class);

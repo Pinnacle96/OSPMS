@@ -18,7 +18,7 @@ class ReconciliationMatcher
             ->when($run->provider, fn ($q) => $q->where('provider', $run->provider));
         $tickets = Ticket::where('currency', 'NGN')->where(function ($q) use ($run, $paid) {
             $q->where(fn ($issued) => $issued->where('issued_at', '>=', $run->period_start)->where('issued_at', '<', $run->period_end)->where('ticket_status', '!=', 'cancelled'))
-                ->orWhereIn('id', (clone $paid)->where(fn ($p) => $p->where('paid_at', '>=', $run->period_start)->orWhere(fn ($r) => $r->where('reversed_at', '>=', $run->period_start)->where('reversed_at', '<', $run->period_end)))->select('ticket_id'));
+                ->orWhereIn('id', FinancialTransaction::whereIn('transaction_type', ['refund', 'adjustment'])->where('occurred_at', '>=', $run->period_start)->where('occurred_at', '<', $run->period_end)->select('ticket_id'))->orWhereIn('id', (clone $paid)->where(fn ($p) => $p->where('paid_at', '>=', $run->period_start)->orWhere(fn ($r) => $r->where('reversed_at', '>=', $run->period_start)->where('reversed_at', '<', $run->period_end)))->select('ticket_id'));
         })->when($run->lga_id, fn ($q) => $q->where('lga_id', $run->lga_id))->when($run->park_id, fn ($q) => $q->where('park_id', $run->park_id));
         foreach ($tickets->orderBy('id')->cursor() as $ticket) {
             $payments = (clone $paid)->where('ticket_id', $ticket->id)->orderBy('id')->get();
@@ -78,7 +78,7 @@ class ReconciliationMatcher
             if ($ticket && (! BigDecimal::of($ticket->amount)->isEqualTo($payment->amount) || $ticket->currency !== $payment->currency)) {
                 $flags[] = 'amount_mismatch';
             }
-            $credits = FinancialTransaction::where('payment_id', $payment->id)->where('direction', 'credit')->orderBy('id')->get();
+            $credits = FinancialTransaction::where('payment_id', $payment->id)->where('direction', 'credit')->where('transaction_type', 'payment')->orderBy('id')->get();
             if ($credits->isEmpty()) {
                 $flags[] = 'missing_ledger_entry';
             }
@@ -117,6 +117,11 @@ class ReconciliationMatcher
                 }
                 $source['credits'][] = ['reference' => $credit->transaction_reference, 'amount' => $credit->amount, 'settlements' => $settled->map(fn ($si) => ['reference' => $si->settlement->settlement_reference, 'amount' => $si->amount, 'status' => $si->settlement->status->value])->all()];
             }
+            $corrections = FinancialTransaction::where('payment_id', $payment->id)->whereIn('transaction_type', ['refund', 'adjustment'])->where('occurred_at', '<', $run->period_end)->orderBy('id')->get();
+            if ($corrections->isNotEmpty()) {
+                $flags[] = 'reversal_exception';
+            }
+            $source['corrections'] = $corrections->map(fn ($c) => $c->only(['transaction_reference', 'transaction_type', 'direction', 'amount', 'currency', 'parent_transaction_id']))->all();
             $sources[] = $source;
         }
         $priority = ['payment_without_ticket', 'reversal_exception', 'duplicate_provider_reference', 'ticket_without_payment', 'missing_ledger_entry', 'amount_mismatch', 'missing_settlement', 'unknown'];

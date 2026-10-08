@@ -379,11 +379,11 @@ class PaymentsTest extends FoundationTestCase
         $count = Ticket::count();
         $this->seed(PaymentDemoSeeder::class);
         $this->assertSame($count, Ticket::count());
-        $this->assertDatabaseCount('payments', 5);
-        $this->assertDatabaseCount('receipts', 3);
-        $this->assertDatabaseCount('financial_transactions', 4);
+        $this->assertDatabaseCount('payments', 6);
+        $this->assertDatabaseCount('receipts', 4);
+        $this->assertDatabaseCount('financial_transactions', 6);
         $this->assertSame('reversed', $payment->fresh()->status->value);
         $this->actingAs($finance)->get('/finance/ledger?direction=debit&transaction_type=reversal&search='.$payment->payment_reference.'&sort=amount&order=asc')->assertInertia(fn (Assert $a) => $a->has('records.data', 1)->where('records.data.0.direction', 'debit'));
-        $this->get('/finance/ledger?direction=credit')->assertInertia(fn (Assert $a) => $a->has('records.data', 3));
+        $this->get('/finance/ledger?direction=credit')->assertInertia(fn (Assert $a) => $a->has('records.data', 4));
     }
 }

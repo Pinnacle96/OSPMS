@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Web;
 
 use App\Domains\Finance\Models\FinancialTransaction;
+use App\Domains\Finance\Models\Refund;
+use App\Domains\Finance\Services\CorrectionViewService;
 use App\Domains\Identity\Services\UserAccessScopeService;
 use App\Domains\Payments\Actions\InitiatePaymentAction;
 use App\Domains\Payments\Actions\ResolveDemoPaymentAction;
@@ -16,6 +18,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Payments\FinancialFilterRequest;
 use App\Http\Requests\Payments\ReversePaymentRequest;
 use App\Http\Requests\Payments\SimulatePaymentRequest;
+use App\Support\Payments\PaymentGatewayManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -38,6 +41,8 @@ class PaymentController extends Controller
             'ticket' => ['public_id' => $t->public_id, 'ticket_reference' => $t->ticket_reference, 'vehicle' => $t->context_snapshot['vehicle']['registration'] ?? null, 'park' => $t->context_snapshot['park']['name'] ?? null, 'status' => app(TicketExpiryService::class)->status($t)->value],
             'receipt' => $receipt && $request->user()->can('view', $receipt) ? $receipt->only(['public_id', 'receipt_number']) : null,
             'ledger' => $request->user()->can('view_financial_ledger') ? app(UserAccessScopeService::class)->scopeLedger(FinancialTransaction::where('payment_id', $payment->id), $request->user())->get(['public_id', 'transaction_reference', 'direction', 'amount', 'currency']) : [],
+            'can_request_refund' => $payment->status->value === 'successful' && $payment->provider === 'demo' && app(PaymentGatewayManager::class)->demoEnabled() && $request->user()->can('request', [Refund::class, $payment]),
+            'refunds' => $request->user()->can('view_refund') ? Refund::where('payment_id', $payment->id)->latest('id')->get()->filter(fn ($r) => $request->user()->can('view', $r))->map(fn ($r) => app(CorrectionViewService::class)->record($r))->values() : [],
             'can_resolve' => $payment->status->value === 'pending' && $request->user()->can('pay', $t), 'can_reverse' => $payment->status->value === 'successful' && $request->user()->can('reverse', $payment), 'idempotency_key' => bin2hex(random_bytes(32)),
         ])->toResponse($request)->withHeaders(['Cache-Control' => 'private, no-store', 'Referrer-Policy' => 'no-referrer']);
     }

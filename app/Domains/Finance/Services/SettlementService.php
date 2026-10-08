@@ -16,6 +16,7 @@ class SettlementService
             ->whereHas('payment', fn ($p) => $p->where('provider', 'demo')->where('status', 'successful')
                 ->whereColumn('payments.ticket_id', 'financial_transactions.ticket_id')->whereColumn('payments.amount', 'financial_transactions.amount')->whereColumn('payments.currency', 'financial_transactions.currency'))
             ->whereNotIn('id', SettlementItem::select('financial_transaction_id'))
-            ->whereDoesntHave('reversals');
+            ->whereDoesntHave('reversals')
+            ->whereNotIn('payment_id', FinancialTransaction::whereIn('transaction_type', ['refund', 'adjustment'])->whereNotNull('payment_id')->select('payment_id'));
     }
 }
