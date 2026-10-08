@@ -1,7 +1,7 @@
 # Implementation status
 
-Build date: 2026-10-07 (Africa/Lagos)
-Current authorization: continue through Milestone 6. Milestones 0–3 were completed and integrated previously. Completion validation is dated 2026-10-08 (Africa/Lagos).
+Build date: 2026-10-08 (Africa/Lagos)
+Current authorization: continue through Milestone 7. Milestones 0–6 were completed and integrated previously.
 
 - [x] Milestone 0 — Project Bootstrap
 - [x] Milestone 1 — Authentication + RBAC
@@ -10,7 +10,7 @@ Current authorization: continue through Milestone 6. Milestones 0–3 were compl
 - [x] Milestone 4 — Operators
 - [x] Milestone 5 — Drivers, Vehicles & Assignments
 - [x] Milestone 6 — Revenue Heads & Fee Configuration
-- [ ] Milestone 7 — Ticketing + QR
+- [x] Milestone 7 — Ticketing + QR
 - [ ] Milestone 8 — Demo Payments + Receipts + Ledger
 - [ ] Milestone 9 — Revenue Dashboards
 - [ ] Milestone 10 — Settlement + Reconciliation
@@ -107,12 +107,24 @@ Blocked: none.
 
 Tests: critical fee-resolution unit tests precede ticketing; cover all recommended specificity levels, dates, statuses, no-match/conflicts, exact money, stale model and history protections. Finance authorization and all eight screens are covered.
 
-Known issues: ticket snapshots are implemented/tested in Milestone 7 when tickets exist. SQLite extreme decimal affinity differs from MySQL; maximum precision is checked on MySQL 8.
+Known issues: ticket snapshots are implemented and tested in Milestone 7. SQLite extreme decimal affinity differs from MySQL; maximum precision is checked on MySQL 8.
+
+## Milestone 7
+
+Completed: SCR-056–060 and SCR-067, approved Ticket schema, transactional issuance, backend fee review and revalidation, immutable financial/context snapshots, unique references and secure tokens, QR display/print, supervisor cancellation, immediate expiry evaluation and daily expiry command, scoped lists/tabs/dashboard counts, public safe verification and audit. Repeated reviewed submissions produce one ticket, including simultaneous MySQL requests.
+
+In progress: none.
+
+Blocked: none for this milestone.
+
+Tests: full SQLite and MySQL suites, ticket issuance/cancellation/status/privacy/scope/history tests, migration round trip, QR decoding, responsive Chrome workflows and accessibility samples. See [Milestone 7 validation](MILESTONE_7_VALIDATION.md) for final counts and executed commands.
+
+Known issues: expiry duration is unset until configured from policy. QR links require a reachable APP_URL. Ticketing creates unpaid obligations; payment/receipt/ledger workflows belong to Milestone 8. The scanner/PWA belongs to Milestone 12. Existing SMTP and object storage limitations remain.
 
 ## Later milestones
 
 Completed: none.
 In progress: none.
-Blocked: Milestones 7–20 have not been authorized; not started.
+Blocked: Milestones 8–20 have not been authorized; not started.
 Tests: no later workflow is claimed as tested.
 Known issues: the complete Phase 1 financial and operational presentation journey is not yet available.

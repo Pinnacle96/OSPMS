@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route(auth()->check() ? (auth()->user()->can('view_state_dashboard') ? 'dashboard.state' : 'account.access') : 'login'))->name('home');
 require __DIR__.'/auth.php';
+require __DIR__.'/public.php';
 Route::middleware(['auth', 'active_user', 'password_change'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard.state');
     Route::get('/account/profile', [AccountController::class, 'profile'])->name('account.profile');
@@ -17,4 +18,5 @@ Route::middleware(['auth', 'active_user', 'password_change'])->group(function ()
     require __DIR__.'/admin.php';
     require __DIR__.'/operations.php';
     require __DIR__.'/registry.php';
+    require __DIR__.'/ticketing.php';
 });

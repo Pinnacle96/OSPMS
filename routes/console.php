@@ -1,3 +1,5 @@
 <?php
 
-// Business schedules are introduced with their owning milestones.
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::command('ospm:tickets-expire')->daily()->withoutOverlapping();

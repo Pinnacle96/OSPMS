@@ -13,6 +13,14 @@ class HandleInertiaRequests extends Middleware
 
     public function share(Request $request): array
     {
+        if ($request->routeIs('public.ticket.verify')) {
+            return [
+                ...parent::share($request),
+                'auth' => ['user' => null, 'roles' => [], 'permissions' => [], 'scopes' => null],
+                'system' => app(PublicSystemConfig::class)->get(),
+                'navigation' => [], 'flash' => [], 'errors' => [], 'unread_notifications_count' => 0,
+            ];
+        }
         $user = $request->user();
         $nav = [];
         foreach ([
@@ -24,6 +32,7 @@ class HandleInertiaRequests extends Middleware
             ['Drivers', '/drivers', 'OPERATIONS', 'user', 'view_driver'],
             ['Vehicles', '/vehicles', 'OPERATIONS', 'vehicle', 'view_vehicle'],
             ['Assignments', '/assignments', 'OPERATIONS', 'assignments', 'view_assignment'],
+            ['Tickets', '/tickets', 'TICKETING', 'fees', 'view_ticket'],
             ['Revenue heads', '/revenue-heads', 'FINANCE', 'revenue', 'view_revenue_head'],
             ['Fee configurations', '/fee-configurations', 'FINANCE', 'fees', 'view_fee_configuration'],
             ['Users', '/admin/users', 'ADMINISTRATION', 'users', 'manage_users'],

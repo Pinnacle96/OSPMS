@@ -9,6 +9,20 @@ use Spatie\Permission\PermissionRegistrar;
 
 class RolePermissionSeeder extends Seeder
 {
+    public const TICKETING_GRANTS = [
+        'State Administrator' => ['view_ticket', 'cancel_ticket'],
+        'Executive Viewer' => ['view_ticket'],
+        'Finance Administrator' => ['view_ticket', 'cancel_ticket'],
+        'Revenue Officer' => ['view_ticket'],
+        'Auditor' => ['view_ticket'],
+        'LGA Administrator' => ['view_ticket', 'cancel_ticket'],
+        'Park Manager' => ['view_ticket', 'cancel_ticket'],
+        'Ticketing Officer' => ['view_ticket'],
+        'Collection Agent' => ['view_ticket'],
+        'Enforcement Officer' => ['view_ticket'],
+        'Transport Operator' => ['view_ticket'],
+    ];
+
     public const REGISTRY_GRANTS = [
         'State Administrator' => ['manage_lga', 'create_park', 'view_route', 'manage_route', 'assign_park_routes'],
         'Executive Viewer' => ['view_route'],
@@ -52,13 +66,13 @@ class RolePermissionSeeder extends Seeder
     public function run(): void
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
-        $permissions = collect(self::GRANTS)->flatten()->merge(collect(self::REGISTRY_GRANTS)->flatten())->merge(collect(self::TRANSPORT_GRANTS)->flatten())->reject(fn ($name) => $name === '*')->push('manage_users', 'manage_roles')->unique();
+        $permissions = collect(self::GRANTS)->flatten()->merge(collect(self::REGISTRY_GRANTS)->flatten())->merge(collect(self::TRANSPORT_GRANTS)->flatten())->merge(collect(self::TICKETING_GRANTS)->flatten())->reject(fn ($name) => $name === '*')->push('manage_users', 'manage_roles')->unique();
         foreach ($permissions as $permission) {
             Permission::findOrCreate($permission, 'web');
         }
         foreach (self::GRANTS as $name => $grants) {
             if ($grants !== ['*']) {
-                $grants = array_merge($grants, self::REGISTRY_GRANTS[$name] ?? [], self::TRANSPORT_GRANTS[$name] ?? []);
+                $grants = array_merge($grants, self::REGISTRY_GRANTS[$name] ?? [], self::TRANSPORT_GRANTS[$name] ?? [], self::TICKETING_GRANTS[$name] ?? []);
             }
             Role::findOrCreate($name, 'web')->syncPermissions($grants === ['*'] ? Permission::where('guard_name', 'web')->get() : $grants);
         }

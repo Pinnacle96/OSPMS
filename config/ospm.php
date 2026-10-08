@@ -9,6 +9,7 @@ return [
     'currency' => env('OSPM_CURRENCY', 'NGN'),
     'timezone' => env('OSPM_TIMEZONE', 'Africa/Lagos'),
     'reference_prefix' => env('OSPM_REFERENCE_PREFIX', 'OSPM'),
+    'ticket_expiry_minutes' => env('OSPM_TICKET_EXPIRY_MINUTES') ? max(1, (int) env('OSPM_TICKET_EXPIRY_MINUTES')) : null,
     'branding' => [
         'primary' => env('OSPM_BRAND_PRIMARY', '#142a43'),
         'primary_dark' => env('OSPM_BRAND_PRIMARY_DARK', '#102237'),

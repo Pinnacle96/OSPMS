@@ -9,6 +9,7 @@ use App\Domains\Identity\Services\UserAccessScopeService;
 use App\Domains\Operators\Models\Operator;
 use App\Domains\Parks\Models\Park;
 use App\Domains\Routes\Models\Route;
+use App\Domains\Ticketing\Models\Ticket;
 use App\Domains\Vehicles\Models\Vehicle;
 use Illuminate\Support\Facades\Gate;
 
@@ -35,7 +36,10 @@ class LocalDashboardQuery
             $count = $scope->scopeParticipants($model::query(), $user)->whereHas('assignments', fn ($a) => $scope->scopeAssignments($a, $user)->whereIn('park_id', (clone $ids)))->count();
             $metrics[] = ['label' => 'Registered '.$label, 'value' => $count, 'note' => 'Current and historical registrations'];
         }
-        foreach (['Tickets', 'Transactions', 'Pending reconciliation'] as $label) {
+        $tickets = app(UserAccessScopeService::class)->scopeTickets(Ticket::query(), $user)
+            ->where($lga ? 'lga_id' : 'park_id', $record->id);
+        $metrics[] = ['label' => 'Tickets', 'value' => $user->can('view_ticket') ? $tickets->count() : 0, 'note' => $user->can('view_ticket') ? 'Issued tickets within your access' : 'Ticket access restricted'];
+        foreach (['Transactions', 'Pending reconciliation'] as $label) {
             $metrics[] = ['label' => $label, 'value' => 0, 'note' => 'Workflow not yet enabled'];
         }
         $metrics[] = ['label' => $lga ? "Today's revenue" : "Today's collections", 'value' => '0.00', 'money' => true, 'note' => 'Collections not yet enabled'];

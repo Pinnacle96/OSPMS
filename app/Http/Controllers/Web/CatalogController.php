@@ -11,6 +11,7 @@ use App\Domains\Revenue\Models\RevenueHead;
 use App\Domains\Routes\Models\Route;
 use App\Domains\System\Queries\CatalogListQuery;
 use App\Domains\System\Services\CatalogDefinition;
+use App\Domains\Ticketing\Queries\TicketListQuery;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Operations\CatalogFilterRequest;
 use App\Http\Requests\Operations\SaveCatalogRequest;
@@ -82,6 +83,9 @@ class CatalogController extends Controller
         $scope = app(UserAccessScopeService::class);
         $related = [];
         if (in_array($kind, ['operators', 'drivers', 'vehicles'], true)) {
+            if ($u->can('view_ticket')) {
+                $related['tickets'] = app(TicketListQuery::class)->get($u, [rtrim($kind, 's').'_id' => $r->id], 'tickets_page');
+            }
             $assignments = $scope->scopeAssignments($r->assignments()->getQuery(), $u)->with(['driver:id,public_id,first_name,last_name,driver_number', 'vehicle:id,public_id,registration_number', 'operator:id,public_id,name', 'park:id,public_id,name', 'route:id,public_id,origin,destination'])->latest('starts_at')->paginate(10, ['*'], 'assignments_page')->withQueryString();
             $related['assignments'] = $assignments;
             $related['current_assignments'] = $scope->scopeAssignments($r->assignments()->getQuery(), $u)->where('status', 'active')->where('starts_at', '<=', now())->where(fn ($q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', now()))->with(['driver:id,public_id,first_name,last_name,driver_number', 'vehicle:id,public_id,registration_number', 'operator:id,public_id,name', 'park:id,public_id,name', 'route:id,public_id,origin,destination'])->latest('starts_at')->paginate(10, ['*'], 'current_page')->withQueryString();

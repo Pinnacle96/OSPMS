@@ -7,6 +7,7 @@ use App\Domains\Operators\Enums\OperatorStatus;
 use App\Domains\Parks\Models\Park;
 use App\Domains\Routes\Models\Route;
 use App\Domains\System\Models\MediaAttachment;
+use App\Domains\Ticketing\Models\Ticket;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -53,5 +54,10 @@ class Operator extends Model
     public function routes(): BelongsToMany
     {
         return $this->belongsToMany(Route::class, 'operator_route')->using(OperatorRoute::class)->withPivot('park_id', 'status', 'approved_at', 'created_at');
+    }
+
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class);
     }
 }

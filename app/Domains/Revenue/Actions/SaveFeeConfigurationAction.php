@@ -62,6 +62,6 @@ class SaveFeeConfigurationAction
             activity('revenue')->causedBy($actor)->performedOn($r)->withProperties(['terms' => $r->only($fields)])->log($fee ? 'fee_configuration_changed' : 'fee_configuration_created');
 
             return $r;
-        });
+        }, 3);
     }
 }

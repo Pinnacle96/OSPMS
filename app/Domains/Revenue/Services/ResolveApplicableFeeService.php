@@ -10,10 +10,11 @@ use Illuminate\Validation\ValidationException;
 
 class ResolveApplicableFeeService
 {
-    public function resolve(RevenueHead $head, string $vehicleType, Park $park, ?int $routeId = null, ?CarbonImmutable $at = null): FeeConfiguration
+    public function resolve(RevenueHead $head, string $vehicleType, Park $park, ?int $routeId = null, ?CarbonImmutable $at = null, bool $lock = false): FeeConfiguration
     {
         $at ??= CarbonImmutable::now();
-        $head = RevenueHead::find($head->id);
+        $headQuery = RevenueHead::whereKey($head->id);
+        $head = ($lock ? $headQuery->lockForUpdate() : $headQuery)->first();
         if (! $head || $head->status->value !== 'active') {
             throw ValidationException::withMessages(['revenue_head_id' => 'The revenue head is inactive.']);
         }
@@ -21,6 +22,10 @@ class ResolveApplicableFeeService
             ->where(fn ($q) => $q->whereNull('effective_to')->orWhere('effective_to', '>', $at));
         foreach (['vehicle_type' => $vehicleType, 'lga_id' => $park->lga_id, 'park_id' => $park->id, 'route_id' => $routeId] as $column => $value) {
             $candidates->where(fn ($q) => $q->whereNull($column)->orWhere($column, $value));
+        }
+        // Locking reads see current committed terms even under MySQL REPEATABLE READ.
+        if ($lock) {
+            $candidates->lockForUpdate();
         }
         $ranked = $candidates->get()->sort(function ($a, $b) {
             return $this->specificity($b) <=> $this->specificity($a) ?: $b->priority <=> $a->priority ?: $b->effective_from <=> $a->effective_from;

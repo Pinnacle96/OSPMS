@@ -105,6 +105,8 @@ h3 { font-size: 14px; font-weight: 650; }
 .breadcrumbs > span { display: inline-flex; align-items: center; gap: 8px; }
 .breadcrumbs [aria-current] { color: var(--gov-text); }
 .page-header { display: flex; justify-content: space-between; gap: 20px; align-items: center; margin-bottom: 24px; }
+.page-header > div:first-child { min-width: 0; max-width: 100%; }
+.page-header h1 { overflow-wrap: anywhere; }
 .page-description { color: var(--gov-muted); font-size: 12px; margin-top: 8px; }
 .page-actions { display: flex; gap: 8px; align-items: center; }
 .scope-strip { display: flex; justify-content: space-between; gap: 16px; padding: 11px 15px; background: var(--gov-surface); border: 1px solid var(--gov-border); border-radius: 6px; margin-bottom: 22px; font-size: 11px; color: var(--gov-muted); }
@@ -265,3 +267,11 @@ legend { font-size: 13px; font-weight: 600; margin-bottom: 16px; }
 @media (max-width: 640px) { .stat-grid .stat-card:last-child:nth-child(even) { grid-column: auto; } }
 
 .registry-photo { width: 120px; height: 120px; object-fit: cover; border: 1px solid var(--gov-border); border-radius: 6px; margin-bottom: 24px; }
+.ticket-summary { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 36px; }
+.ticket-qr { margin: 0; text-align: center; } .ticket-qr img { max-width: 100%; height: auto; background: white; } .ticket-qr figcaption { font-size: 13px; }
+.ticket-total { margin-bottom: 28px; } .ticket-total > strong { display: block; font-size: 34px; margin: 10px 0 16px; letter-spacing: -1px; }
+.ticket-statuses { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; } .ticket-statuses > span { font-size: 12px; }
+.ticket-review { margin-top: 24px; } .ticket-reference { overflow-wrap: anywhere; } .print-actions { display: flex; gap: 12px; margin-bottom: 24px; }
+.verification-card { max-width: 780px; margin: 0 auto; } .verification-banner { padding: 28px; border-top: 5px solid #9c3030; background: #fff3f3; } .verification-banner.valid { border-color: #176346; background: #edf9f2; } .verification-banner.pending { border-color: #80580d; background: #fff9e9; } .verification-banner h1 { font-size: 26px; margin: 10px 0; } .verification-banner p { font-size: 14px; line-height: 1.65; }
+@media (max-width: 760px) { .ticket-summary { grid-template-columns: minmax(0, 1fr); } .ticket-qr { max-width: 280px; justify-self: center; } }
+@media print { .print-actions, .public-shell > footer { display: none !important; } .public-shell, .public-shell > main { padding: 0; background: white; } .printable-ticket { box-shadow: none; border: 0; } .ticket-summary { grid-template-columns: minmax(0, 1fr) 220px; gap: 20px; } .ticket-qr { break-inside: avoid; } .ticket-qr img { width: 220px; } .detail-list > div { break-inside: avoid; } }

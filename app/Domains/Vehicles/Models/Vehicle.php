@@ -4,6 +4,7 @@ namespace App\Domains\Vehicles\Models;
 
 use App\Domains\Assignments\Models\DriverAssignment;
 use App\Domains\System\Models\MediaAttachment;
+use App\Domains\Ticketing\Models\Ticket;
 use App\Domains\Vehicles\Enums\VehicleStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
@@ -40,5 +41,10 @@ class Vehicle extends Model
     public function documents(): MorphMany
     {
         return $this->morphMany(MediaAttachment::class, 'attachable');
+    }
+
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class);
     }
 }

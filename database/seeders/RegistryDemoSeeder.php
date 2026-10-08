@@ -39,7 +39,7 @@ class RegistryDemoSeeder extends Seeder
             User::where('email', 'lgaadmin@demo.local')->firstOrFail()->lgas()->syncWithoutDetaching([$lgas[0]->id => ['access_level' => 'manage', 'created_at' => now()]]);
             User::where('email', 'parkmanager@demo.local')->firstOrFail()->parks()->syncWithoutDetaching([$parks[0]->id => ['access_level' => 'manage', 'created_at' => now()]]);
             foreach (['ticketing', 'collection', 'enforcement', 'helpdesk'] as $username) {
-                User::where('email', $username.'@demo.local')->firstOrFail()->parks()->syncWithoutDetaching([$parks[0]->id => ['access_level' => 'view', 'created_at' => now()]]);
+                User::where('email', $username.'@demo.local')->firstOrFail()->parks()->syncWithoutDetaching([$parks[0]->id => ['access_level' => in_array($username, ['ticketing', 'collection'], true) ? 'manage' : 'view', 'created_at' => now()]]);
             }
             activity('system')->causedBy($actor)->withProperties(['lgas' => 3, 'parks' => 3, 'routes' => 3])->log('demo_registry_seeded');
         });

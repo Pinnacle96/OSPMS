@@ -9,6 +9,7 @@ use App\Domains\Identity\Services\UserAccessScopeService;
 use App\Domains\Operators\Models\Operator;
 use App\Domains\Parks\Models\Park;
 use App\Domains\Routes\Models\Route;
+use App\Domains\Ticketing\Queries\TicketListQuery;
 use App\Domains\Vehicles\Models\Vehicle;
 
 class TransportConnectionsQuery
@@ -47,6 +48,10 @@ class TransportConnectionsQuery
                 $columns = $key === 'drivers' ? ['id', 'public_id', 'first_name', 'last_name', 'driver_number', 'status'] : ['id', 'public_id', 'registration_number', 'vehicle_number', 'status'];
             }
             $result[$key] = $q->orderBy('id')->paginate(10, $columns, $key.'_page')->withQueryString();
+        }
+
+        if ($record instanceof Park && $user->can('view_ticket')) {
+            $result['tickets'] = app(TicketListQuery::class)->get($user, ['park_id' => $record->id], 'tickets_page');
         }
 
         return $result;

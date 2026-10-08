@@ -9,6 +9,7 @@ use App\Domains\Operators\Models\OperatorPark;
 use App\Domains\Parks\Enums\ParkStatus;
 use App\Domains\Routes\Models\ParkRoute;
 use App\Domains\Routes\Models\Route;
+use App\Domains\Ticketing\Models\Ticket;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -55,5 +56,10 @@ class Park extends Model
     public function assignments(): HasMany
     {
         return $this->hasMany(DriverAssignment::class);
+    }
+
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class);
     }
 }

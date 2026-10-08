@@ -5,7 +5,7 @@ export type Option={id:number|string;name?:string;origin?:string;destination?:st
 export type Options=Record<string,Option[]>;
 export type Assignment={id:number;status:string;starts_at:string;ends_at?:string;is_primary:boolean;driver:Item;vehicle:Item;operator:Item;park:Item;route?:Option};
 export type Document={public_id:string;category:string;original_name:string;mime_type:string;size_bytes:number;created_at:string};
-export type Related={assignments?:Paginated<Assignment>;current_assignments?:Paginated<Assignment>;documents?:Paginated<Document>;parks?:Paginated<Item>;routes?:Paginated<Option & {public_id:string;status:string;pivot:{status:string;park_id:number}}> ;fees?:Paginated<Item>};
+export type Related={tickets?:import('@/types/ticketing').TicketPage;assignments?:Paginated<Assignment>;current_assignments?:Paginated<Assignment>;documents?:Paginated<Document>;parks?:Paginated<Item>;routes?:Paginated<Option & {public_id:string;status:string;pivot:{status:string;park_id:number}}> ;fees?:Paginated<Item>};
 export const catalog:Record<Kind,{title:string;singular:string;statuses:string[]}>={
  operators:{title:'Operators',singular:'operator',statuses:['pending','approved','suspended','inactive']},
  drivers:{title:'Drivers',singular:'driver',statuses:['pending','active','suspended','expired','blacklisted','inactive']},

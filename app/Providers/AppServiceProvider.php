@@ -21,6 +21,8 @@ use App\Domains\Revenue\Policies\FeeConfigurationPolicy;
 use App\Domains\Revenue\Policies\RevenueHeadPolicy;
 use App\Domains\Routes\Models\Route;
 use App\Domains\Routes\Policies\RoutePolicy;
+use App\Domains\Ticketing\Models\Ticket;
+use App\Domains\Ticketing\Policies\TicketPolicy;
 use App\Domains\Vehicles\Models\Vehicle;
 use App\Domains\Vehicles\Policies\VehiclePolicy;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -45,6 +47,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::policy(Ticket::class, TicketPolicy::class);
+        RateLimiter::for('ticket-verification', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(Operator::class, OperatorPolicy::class);
         Gate::policy(Driver::class, DriverPolicy::class);

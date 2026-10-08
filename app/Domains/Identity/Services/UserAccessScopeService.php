@@ -74,6 +74,20 @@ class UserAccessScopeService
         });
     }
 
+    public function scopeTickets(Builder $query, User $user, AccessLevel $level = AccessLevel::View): Builder
+    {
+        if ($this->isStatewide($user)) {
+            return $query;
+        }
+
+        // Ticket geography is historical: moving a park must not move old tickets between LGAs.
+        return $query->where(function (Builder $q) use ($user, $level) {
+            $q->whereIn('tickets.lga_id', $this->ids($user, 'lgas', $level))
+                ->orWhereIn('tickets.park_id', $this->ids($user, 'parks', $level))
+                ->orWhereIn('tickets.operator_id', $this->ids($user, 'operators', $level));
+        });
+    }
+
     public function canAccessLga(User $user, Lga $lga, AccessLevel $level = AccessLevel::View): bool
     {
         return $this->scopeLgas(Lga::query(), $user, $level)->whereKey($lga->id)->exists();
