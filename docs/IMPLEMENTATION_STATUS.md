@@ -1,7 +1,7 @@
 # Implementation status
 
 Build date: 2026-10-08 (Africa/Lagos)
-Current authorization: continue through Milestone 9. Milestones 0–8 were completed and integrated previously.
+Current authorization: Milestone 10 — Settlement + Reconciliation. Milestones 0–9 were completed and integrated previously.
 
 - [x] Milestone 0 — Project Bootstrap
 - [x] Milestone 1 — Authentication + RBAC
@@ -13,7 +13,7 @@ Current authorization: continue through Milestone 9. Milestones 0–8 were compl
 - [x] Milestone 7 — Ticketing + QR
 - [x] Milestone 8 — Demo Payments + Receipts + Ledger
 - [x] Milestone 9 — Revenue Dashboards
-- [ ] Milestone 10 — Settlement + Reconciliation
+- [x] Milestone 10 — Settlement + Reconciliation
 - [ ] Milestone 11 — Refunds & Adjustments
 - [ ] Milestone 12 — Enforcement PWA
 - [ ] Milestone 13 — Incidents & Violations
@@ -131,7 +131,7 @@ Blocked: none for this milestone.
 
 Tests: full SQLite and MySQL suites, real two-process MySQL payment/audit races, browser collection/reversal/verification flows, PDF rendering and QR decoding, mobile overflow checks and 25 accessibility samples. See [Milestone 8 validation](MILESTONE_8_VALIDATION.md) for final counts and executed checks.
 
-Known issues: revenue dashboards are implemented in Milestone 9. Settlement/reconciliation, refund approval and adjustments remain Milestones 10–11. Demo writes refuse production. Receipt PDF requires writable framework cache; verification requires reachable APP_URL. Existing SMTP, object storage and unspecified repository license limitations remain. Financial model guards and hash chaining do not replace database privilege controls and protected backups.
+Known issues: revenue dashboards are implemented in Milestone 9. Settlement/reconciliation is implemented in Milestone 10; refund approval and adjustments remain Milestone 11. Demo writes refuse production. Receipt PDF requires writable framework cache; verification requires reachable APP_URL. Existing SMTP, object storage and unspecified repository license limitations remain. Financial model guards and hash chaining do not replace database privilege controls and protected backups.
 
 ## Milestone 9
 
@@ -143,12 +143,24 @@ Blocked: none for this milestone.
 
 Tests: MySQL 131 passed / 2,688 assertions; SQLite 130 passed / 2,685 assertions with one MySQL-only precision skip. Coverage includes exact totals and every grouping, failed/pending exclusions, reversals across periods, midnight/DST boundaries, decimal capacity, scoped/permission access, archived/moved park history, matching detail queries and absence of GET mutations. Browser checks cover all five dashboards, a fresh payment and reversal, keyboard charts, five mobile pages and 16 accessibility samples. See [Milestone 9 validation](MILESTONE_9_VALIDATION.md).
 
-Known issues: reconciliation metrics and exceptions remain unavailable until Milestone 10; no settlement is implied. Status charts show the current status of attempts initiated in the period, while revenue uses ledger occurrence dates. Financial summaries are NGN-only. SQLite retains its existing large-value numeric-affinity limitation; MySQL verifies production precision. Existing SMTP/object storage/license/expiry-policy limitations remain.
+Known issues: reconciliation metrics and exceptions are integrated in Milestone 10; ledger totals do not imply treasury settlement. Status charts show the current status of attempts initiated in the period, while revenue uses ledger occurrence dates. Financial summaries are NGN-only. SQLite retains its existing large-value numeric-affinity limitation; MySQL verifies production precision. Existing SMTP/object storage/license/expiry-policy limitations remain.
+
+## Milestone 10
+
+Completed: SCR-071–078; exact Settlement/SettlementItem/ReconciliationRun/ReconciliationItem schema, enums, retained models, policies and Form Requests; server-calculated demo provider batches; transactional matching, source evidence and exception detection; immutable completed snapshots; actor/payload-bound confirmations; queue-capable processing; audited reasoned review/resolution; scoped totals and safe detail links; navigation, ledger trace and real dashboard pending counts; synthetic matched/missing-payment/mismatch fixtures retained across reset. All eight screens include responsive forms/details, pagination and validated filtering/sorting where applicable.
+
+In progress: none.
+
+Blocked: none for this milestone.
+
+Tests: final MySQL 160 passed / 3,087 assertions; SQLite 158 passed / 3,078 assertions with two MySQL-only precision skips. Twenty-nine M10 tests cover matching, source exceptions, review/audit retention, replay, rollback, scope/privacy, permissions, exact amounts, date boundaries, validated sorting and reset retention. Four real MySQL concurrency scenarios and a database queue worker passed. All eight screens passed desktop/mobile smoke; 22 final axe samples had zero violations, eight mobile pages had no overflow and JavaScript errors were zero. PHP syntax (285 files), Pint, TypeScript, ESLint, build and dependency audits passed. The four-table migration rolled back/remigrated on ospm_test; 11 restrictive FKs and exact column sets passed inspection. See [Milestone 10 validation](MILESTONE_10_VALIDATION.md).
+
+Known issues: demo settlement fees are zero and government account references are unset; no real funds, external settlement feed, live treasury integration or invented allocation policy is involved. Non-demo processing requires the configured database worker. Resolving a finding acknowledges a reviewed outcome and retains original discrepancy amounts; it does not adjust funds. General audit viewer screens remain Milestone 16. Existing SMTP/object storage/license/expiry-policy limitations remain. Production volume/load testing is part of the later QA milestone.
 
 ## Later milestones
 
 Completed: none.
 In progress: none.
-Blocked: Milestones 10–20 have not been authorized; not started.
+Blocked: Milestones 11–20 have not been authorized; not started.
 Tests: no later workflow is claimed as tested.
 Known issues: the complete Phase 1 financial and operational presentation journey is not yet available.

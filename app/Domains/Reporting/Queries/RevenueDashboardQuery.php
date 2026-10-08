@@ -9,6 +9,7 @@ use App\Domains\Identity\Services\UserAccessScopeService;
 use App\Domains\Parks\Models\Park;
 use App\Domains\Payments\Models\Payment;
 use App\Domains\Payments\Queries\FinancialFilterOptions;
+use App\Domains\Reconciliation\Services\PendingReconciliation;
 use App\Domains\Reporting\Services\DashboardDateRange;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
@@ -83,7 +84,9 @@ class RevenueDashboardQuery
                 'payment_status' => $statuses, 'payment_channels' => $channels, 'recent_transactions' => $recent,
                 'ledger_url' => $this->ledgerUrl($user, $filters, $range, $record),
                 'payments_url' => $this->paymentUrl($user, $filters, $range, $record),
-                'currency' => 'NGN', 'timezone' => config('ospm.timezone'), 'reconciliation_available' => false,
+                'currency' => 'NGN', 'timezone' => config('ospm.timezone'), 'reconciliation_available' => $user->can('view_reconciliation'),
+                'pending_reconciliation' => $user->can('view_reconciliation') ? app(PendingReconciliation::class)->count(clone $selected) : null,
+                'reconciliation_url' => $user->can('view_reconciliation') ? '/finance/reconciliation?'.http_build_query(array_intersect_key($this->parameters($filters, $range, $record, []), array_flip(['lga_id', 'park_id']))) : null,
                 ...app(FinancialFilterOptions::class)->get($user),
             ];
         });

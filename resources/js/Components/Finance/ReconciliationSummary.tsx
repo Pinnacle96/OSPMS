@@ -1,0 +1,5 @@
+import {Wallet,CheckCheck,TriangleAlert,Scale,ReceiptText} from 'lucide-react';
+import StatCard from '@/Components/Data/StatCard';
+import MoneyDisplay from './MoneyDisplay';
+import type {Summary} from '@/types/reconciliation';
+export default function ReconciliationSummary({summary:s}:{summary:Summary}){return <><div className="stat-grid revenue-totals"><StatCard label="Total expected" value={<MoneyDisplay amount={s.expected}/>} note="Ticket obligations in these findings" icon={Wallet}/><StatCard label="Total recorded" value={<MoneyDisplay amount={s.actual}/>} note="Settled provider gross recorded at run time" icon={ReceiptText}/><StatCard label="Matched" value={s.matched} note={`${s.reconciled} manually reconciled`} icon={CheckCheck}/><StatCard label="Exceptions" value={s.open} note={`${s.under_review} under review`} icon={TriangleAlert}/><StatCard label="Difference" value={<MoneyDisplay amount={s.difference}/>} note="Expected minus recorded; findings are retained" icon={Scale}/></div></>;}

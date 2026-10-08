@@ -1,0 +1,1 @@
+export type Settlement={public_id:string;settlement_reference:string;provider:string;provider_settlement_reference:string|null;gross_amount:string;provider_fees:string;net_amount:string;currency:string;status:string;settled_at:string|null;period_start:string;period_end:string;government_account_reference:string|null};

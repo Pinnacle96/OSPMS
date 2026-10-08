@@ -32,7 +32,7 @@ class StateDashboardQuery
             ['label' => 'Registered drivers', 'value' => $scopes->scopeParticipants(Driver::query(), $user)->count(), 'icon' => 'driver', 'note' => 'Within your data scope'],
             ['label' => 'Successful payments', 'value' => $finance['payment_status'][0]['count'] ?? null, 'icon' => 'check', 'note' => 'Current status • attempts in selected period'],
             ['label' => 'Failed payments', 'value' => $finance['payment_status'][1]['count'] ?? null, 'icon' => 'alert', 'note' => 'Current status • attempts in selected period'],
-            ['label' => 'Pending reconciliation', 'value' => null, 'icon' => 'reconcile', 'note' => 'Available in Milestone 10'],
+            ['label' => 'Pending reconciliation', 'value' => $finance['pending_reconciliation'] ?? null, 'icon' => 'reconcile', 'note' => ($finance['reconciliation_available'] ?? false) ? 'Credits without a latest matched or reviewed outcome • selected period' : 'Reconciliation access restricted'],
         ];
         $activity = Activity::query()->where('created_at', '>=', $range['start_utc'])->where('created_at', '<', $range['end_utc']);
         // General audit visibility is permission-controlled; other viewers receive only their own activity.

@@ -6,6 +6,7 @@ use App\Domains\Identity\Enums\UserStatus;
 use App\Domains\Identity\Models\User;
 use Database\Seeders\DemoUserSeeder;
 use Database\Seeders\PaymentDemoSeeder;
+use Database\Seeders\ReconciliationDemoSeeder;
 use Database\Seeders\RegistryDemoSeeder;
 use Database\Seeders\RolePermissionSeeder;
 use Database\Seeders\TicketDemoSeeder;
@@ -48,8 +49,9 @@ class DemoResetCommand extends Command
             $this->call('db:seed', ['--class' => TransportRevenueDemoSeeder::class, '--force' => true]);
             $this->call('db:seed', ['--class' => TicketDemoSeeder::class, '--force' => true]);
             $this->call('db:seed', ['--class' => PaymentDemoSeeder::class, '--force' => true]);
+            $this->call('db:seed', ['--class' => ReconciliationDemoSeeder::class, '--force' => true]);
         });
-        $this->info('Demo identity and registry access baseline restored. Existing registry edits and audit history preserved. Financial records are retained; missing synthetic payment fixtures are added.');
+        $this->info('Demo identity and registry access baseline restored. Existing registry edits and audit history preserved. Financial records are retained; missing synthetic payment and reconciliation fixtures are added. Settlements, reconciliation findings and review history are preserved.');
 
         return self::SUCCESS;
     }

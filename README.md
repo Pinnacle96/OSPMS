@@ -2,7 +2,7 @@
 
 Government-facing park operations and revenue administration platform. Technology Solution by **Pinnacle Tech Hub**.
 
-This repository currently implements **Milestones 0–9**: the Laravel foundation, authentication/RBAC, account and user administration, scoped geography and transport registries, assignments, private documents, revenue configuration, tickets, demo payments, receipts, an immutable ledger and revenue dashboards. Reconciliation, enforcement and reports remain in their approved later milestones.
+This repository currently implements **Milestones 0–10**: the Laravel foundation, authentication/RBAC, account and user administration, scoped geography and transport registries, assignments, private documents, revenue configuration, tickets, demo payments, receipts, an immutable ledger, revenue dashboards, demo settlement batches and audited reconciliation. Refunds/adjustments, enforcement and reports remain in their approved later milestones.
 
 Government retains policy, regulatory authority and ownership of operational and financial data. Pinnacle Tech Hub is the technology provider.
 
@@ -15,7 +15,7 @@ Read these before changing functionality, in this precedence order:
 3. [Screen Inventory v1.0](docs/SCREEN_INVENTORY_v1.0.md)
 4. [Architecture & Implementation Plan v1.0](docs/ARCHITECTURE_IMPLEMENTATION_PLAN_v1.0.md)
 
-Implementation notes: [Decisions](docs/DECISIONS.md), [Required decisions](docs/DECISIONS_REQUIRED.md), [Status](docs/IMPLEMENTATION_STATUS.md), [Milestone 9 validation](docs/MILESTONE_9_VALIDATION.md), [Milestone 8 validation](docs/MILESTONE_8_VALIDATION.md), [Milestone 7 validation](docs/MILESTONE_7_VALIDATION.md), [Milestones 4–6 validation](docs/MILESTONES_4_6_VALIDATION.md), [Milestone 3 validation](docs/MILESTONE_3_VALIDATION.md), [Foundation validation](docs/VALIDATION.md).
+Implementation notes: [Decisions](docs/DECISIONS.md), [Required decisions](docs/DECISIONS_REQUIRED.md), [Status](docs/IMPLEMENTATION_STATUS.md), [Milestone 10 validation](docs/MILESTONE_10_VALIDATION.md), [Milestone 9 validation](docs/MILESTONE_9_VALIDATION.md), [Milestone 8 validation](docs/MILESTONE_8_VALIDATION.md), [Milestone 7 validation](docs/MILESTONE_7_VALIDATION.md), [Milestones 4–6 validation](docs/MILESTONES_4_6_VALIDATION.md), [Milestone 3 validation](docs/MILESTONE_3_VALIDATION.md), [Foundation validation](docs/VALIDATION.md).
 
 ## Stack and architecture
 
@@ -171,7 +171,7 @@ Financial filters default to month-to-date in `OSPM_TIMEZONE` (Africa/Lagos). Ch
 
 Charts show daily net revenue, revenue by LGA/park/revenue head, payment status and payment channels. Keyboard chart navigation and expandable exact figures are available. Distribution charts show up to ten groups; their exact figure tables include all matching groups. Authorized links open Payments/Ledger with matching date, timezone, currency and scope filters. Lists opened directly retain UTC date defaults. Geography follows the ticket's retained LGA/park IDs, including after a park move; distribution labels use current retained registry names.
 
-Dashboard aggregation runs in Laravel queries against committed records, with exact MySQL DECIMAL sums and decimal-string arithmetic. Recharts receives numeric values for plot coordinates only; React does not calculate revenue. No aggregate tables, financial writes or dashboard cache are introduced. Reconciliation status/exceptions remain visibly unavailable until Milestone 10, and totals do not imply treasury settlement. See ADR-012.
+Dashboard aggregation runs in Laravel queries against committed records, with exact MySQL DECIMAL sums and decimal-string arithmetic. Recharts receives numeric values for plot coordinates only; React does not calculate revenue. No aggregate tables, financial writes or dashboard cache are introduced. Pending reconciliation now counts selected-period credits without a latest matched or reviewed finding. Ledger totals do not imply treasury settlement. See ADR-012 and ADR-013.
 
 ## Password recovery and sessions
 
@@ -223,11 +223,23 @@ Remove-Item Env:\DB_CONNECTION
 Remove-Item Env:\DB_DATABASE
 ```
 
-The test suite recreates its configured database tables. Never point it at an operational/demo database that must be retained. See [the current validation report](docs/MILESTONE_9_VALIDATION.md) for executed checks, including MySQL 8.4.
+The test suite recreates its configured database tables. Never point it at an operational/demo database that must be retained. See [the current validation report](docs/MILESTONE_10_VALIDATION.md) for executed checks, including MySQL 8.4.
+
+## Settlement and reconciliation
+
+Milestone 10 implements SCR-071–078 at `/finance/settlements` and `/finance/reconciliation`. Finance Administrators and Super Administrators can create demo batches, start matching runs and review exceptions. Auditors can inspect retained records without write access. State/Executive/Revenue viewers can read reconciliation; LGA viewers receive only their original ticket geography, with scoped totals and no batch-wide settlement details.
+
+Create a demo settlement from successful, unreversed NGN credits whose ticket/payment/ledger lineage agrees and which have never been batched. Amounts are calculated in Laravel. The mismatch scenario records the first provider item short by NGN 0.01, without modifying its original credit. Synthetic fees are zero and government account references stay unset. Demo batch creation refuses production/live configuration; no treasury transfer or live provider import exists.
+
+Start a reconciliation run for inclusive local dates (maximum 366 days), optional LGA/park and provider. Runs compare one obligation per ticket with successful payments, provider references, credit ledger entries and settled provider gross. Paid/reversed tickets outside the issue period are included when their payment/reversal occurs in the selected period. Failed/pending attempts do not add received funds or duplicate obligations. Amounts, missing lineage, duplicate references, absent settlements, reversals and unrecognized entries produce explainable retained findings.
+
+A completed run is immutable and returns its existing findings on duplicate delivery. A new run captures current committed sources. The overview uses the latest finding per obligation/source, so reruns do not duplicate totals; run details preserve each earlier snapshot. Review requires an outcome and reason, stores actor/time, and appends both general and financial audit events. `Reconciled` means a manually reviewed outcome; original exception types and monetary differences remain. It never adjusts funds or overwrites historical amounts.
+
+Seeding/reset ensures a clean match, a missing-payment ticket and an amount mismatch, while preserving prior settlements, runs, reviews and audit history. General financial audit viewers remain Milestone 16. See [Milestone 10 validation](docs/MILESTONE_10_VALIDATION.md) and ADR-013 for matching definitions and checks.
 
 ## Queues and scheduler
 
-Framework tables are ready for the approved database queue. Run a local worker when asynchronous features are introduced:
+Framework tables are ready for the approved database queue. Demo reconciliation runs synchronously for presentation datasets. Non-demo reconciliation dispatches the same idempotent job to the configured database queue; run a worker:
 
 ```powershell
 php artisan queue:work --tries=3
@@ -251,4 +263,4 @@ No live Government treasury or revenue collection integration exists. Production
 
 Do not expose synthetic presentation accounts publicly with shared/weak passwords. Keep credentials and application keys out of source control, use HTTPS and separate environments, and perform the later security/QA release gate before any government pilot. Existing automated tests and RBAC provide a foundation; they do not certify the entire unbuilt Phase 1 product.
 
-No microservices, native mobile apps, biometrics, tracking, passenger bookings, wallets, AI fraud detection or other out-of-scope workflows have been added. The complete demonstration journey will be delivered in the approved milestone sequence. The next feature milestone is **Milestone 10 — Settlement + Reconciliation**.
+No microservices, native mobile apps, biometrics, tracking, passenger bookings, wallets, AI fraud detection or other out-of-scope workflows have been added. The complete demonstration journey will be delivered in the approved milestone sequence. The next feature milestone is **Milestone 11 — Refunds & Adjustments**.

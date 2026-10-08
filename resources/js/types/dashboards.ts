@@ -9,7 +9,7 @@ export type FinanceData = {
     revenue_by_lga: RevenueGroup[]; revenue_by_park: RevenueGroup[]; revenue_by_revenue_head: RevenueGroup[];
     payment_status: CountGroup[]; payment_channels: CountGroup[];
     recent_transactions: { reference: string; direction: string; type: string; amount: string; currency: string; occurred_at: string; href: string | null }[];
-    ledger_url: string | null; payments_url: string | null; currency: string; timezone: string; reconciliation_available: boolean;
+    ledger_url: string | null; payments_url: string | null; currency: string; timezone: string; reconciliation_available: boolean; pending_reconciliation:number|null; reconciliation_url:string|null;
     parks: { id: number; name: string }[]; lgas: { id: number; name: string }[]; revenue_heads: { id: number; name: string }[];
 };
 export type DashboardProps = { metrics: Metric[]; scope_label: string; lga_count: number; activities: { description: string; created_at: string }[]; filters: DashboardFilters; as_of: string; finance: FinanceData | null };

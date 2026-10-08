@@ -44,7 +44,7 @@ class LocalDashboardQuery
             ->where($lga ? 'lga_id' : 'park_id', $record->id);
         $metrics[] = ['label' => 'Tickets', 'value' => $user->can('view_ticket') ? $tickets->count() : 0, 'note' => $user->can('view_ticket') ? 'Issued tickets within your access' : 'Ticket access restricted'];
         $metrics[] = ['label' => 'Transactions', 'value' => $finance['summary']['transactions'] ?? null, 'note' => $finance ? 'Credits and debits in selected period' : 'Revenue access restricted'];
-        $metrics[] = ['label' => 'Pending reconciliation', 'value' => null, 'note' => 'Available in Milestone 10'];
+        $metrics[] = ['label' => 'Pending reconciliation', 'value' => $finance['pending_reconciliation'] ?? null, 'note' => ($finance['reconciliation_available'] ?? false) ? 'Credits without a latest matched or reviewed outcome • selected period' : 'Reconciliation access restricted'];
         $metrics[] = ['label' => $lga ? "Today's revenue" : "Today's collections", 'value' => $finance['summary']['today']['net'] ?? null, 'money' => true, 'note' => $finance ? 'Ledger credits minus debits • '.config('ospm.timezone').' today' : 'Revenue access restricted'];
         if ($lga) {
             $metrics[] = ['label' => 'Monthly revenue', 'value' => $finance['summary']['month']['net'] ?? null, 'money' => true, 'note' => $finance ? 'Month to date • ledger credits minus debits' : 'Revenue access restricted'];

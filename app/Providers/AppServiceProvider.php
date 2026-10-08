@@ -7,7 +7,9 @@ use App\Domains\Assignments\Policies\AssignmentPolicy;
 use App\Domains\Drivers\Models\Driver;
 use App\Domains\Drivers\Policies\DriverPolicy;
 use App\Domains\Finance\Models\FinancialTransaction;
+use App\Domains\Finance\Models\Settlement;
 use App\Domains\Finance\Policies\FinancialTransactionPolicy;
+use App\Domains\Finance\Policies\SettlementPolicy;
 use App\Domains\Geography\Models\Lga;
 use App\Domains\Geography\Policies\LgaPolicy;
 use App\Domains\Identity\Models\User;
@@ -21,6 +23,9 @@ use App\Domains\Payments\Models\Payment;
 use App\Domains\Payments\Models\Receipt;
 use App\Domains\Payments\Policies\PaymentPolicy;
 use App\Domains\Payments\Policies\ReceiptPolicy;
+use App\Domains\Reconciliation\Models\ReconciliationItem;
+use App\Domains\Reconciliation\Models\ReconciliationRun;
+use App\Domains\Reconciliation\Policies\ReconciliationPolicy;
 use App\Domains\Revenue\Models\FeeConfiguration;
 use App\Domains\Revenue\Models\RevenueHead;
 use App\Domains\Revenue\Policies\FeeConfigurationPolicy;
@@ -53,6 +58,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::policy(Settlement::class, SettlementPolicy::class);
+        Gate::policy(ReconciliationRun::class, ReconciliationPolicy::class);
+        Gate::policy(ReconciliationItem::class, ReconciliationPolicy::class);
         Gate::policy(Payment::class, PaymentPolicy::class);
         Gate::policy(Receipt::class, ReceiptPolicy::class);
         Gate::policy(FinancialTransaction::class, FinancialTransactionPolicy::class);

@@ -36,6 +36,8 @@ class HandleInertiaRequests extends Middleware
             ['Tickets', '/tickets', 'TICKETING', 'fees', 'view_ticket'],
             ['Payments', '/payments', 'FINANCE', 'revenue', 'view_payment'],
             ['Revenue Dashboard', '/finance/dashboard', 'FINANCE', 'revenue', 'view_revenue_dashboard'],
+            ['Settlements', '/finance/settlements', 'FINANCE', 'revenue', 'view_settlement'],
+            ['Reconciliation', '/finance/reconciliation', 'FINANCE', 'revenue', 'view_reconciliation'],
             ['Ledger', '/finance/ledger', 'FINANCE', 'revenue', 'view_financial_ledger'],
             ['Revenue heads', '/revenue-heads', 'FINANCE', 'revenue', 'view_revenue_head'],
             ['Fee configurations', '/fee-configurations', 'FINANCE', 'fees', 'view_fee_configuration'],

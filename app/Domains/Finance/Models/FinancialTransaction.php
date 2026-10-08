@@ -7,6 +7,7 @@ use App\Domains\Ticketing\Models\Ticket;
 use App\Support\Models\RetainedFinancialModel;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class FinancialTransaction extends RetainedFinancialModel
 {
@@ -35,6 +36,11 @@ class FinancialTransaction extends RetainedFinancialModel
     public function getRouteKeyName(): string
     {
         return 'public_id';
+    }
+
+    public function reversals(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_transaction_id')->where('direction', 'debit');
     }
 
     public function payment(): BelongsTo

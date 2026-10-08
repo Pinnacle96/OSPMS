@@ -1,0 +1,8 @@
+import {Link} from '@inertiajs/react';
+import AppLayout from '@/Layouts/AppLayout';
+import PageHeader from '@/Components/App/PageHeader';
+import ReconciliationSummary from '@/Components/Finance/ReconciliationSummary';
+import ReconciliationTable from '@/Components/Finance/ReconciliationTable';
+import ReconciliationFilters from '@/Components/Finance/ReconciliationFilters';
+import type {Summary,ItemPage,Filters,Options} from '@/types/reconciliation';
+export default function Dashboard({summary,items,filters,can_start,lgas,parks}:{summary:Summary;items:ItemPage;filters:Filters;can_start:boolean}&Options){return <AppLayout title="Reconciliation" breadcrumbs={[{label:'Reconciliation'}]}><PageHeader title="Reconciliation" description="Latest finding per obligation, across your accessible scope. Totals follow the current filters." actions={<><Link className="button secondary" href="/finance/reconciliation/runs">View runs</Link>{can_start&&<Link className="button" href="/finance/reconciliation/runs/create">Start reconciliation</Link>}</>}/><ReconciliationSummary summary={summary}/><p className="notice">Expected amounts come from retained tickets. Recorded amounts are settled provider gross at the time of each run. A reviewed exception keeps its original difference. Demo settlements represent simulated funds.</p><ReconciliationFilters key={JSON.stringify(filters)} filters={filters} lgas={lgas} parks={parks} url="/finance/reconciliation"/><div className="section-heading"><h2>Exception queue</h2><span>Latest findings, including review history</span></div><ReconciliationTable items={items}/></AppLayout>;}

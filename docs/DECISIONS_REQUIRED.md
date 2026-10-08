@@ -1,6 +1,6 @@
 # Decisions requiring clarification
 
-No material conflict blocks Milestones 0–9.
+No material conflict blocks Milestones 0–10.
 
 Route geography is derived through approved ParkRoute relationships rather than adding an unapproved LGA column; see ADR-007. Milestone 3 management permissions follow the existing granular authorization approach.
 
@@ -12,4 +12,6 @@ Repository license metadata was not supplied. It remains unset; Composer's stric
 
 Ticket expiry duration was not specified. Milestone 7 leaves expiry unset by default and supports a configurable duration for new tickets; confirm Government validity policy before enabling it. This does not block issuance or safe verification. See ADR-010.
 
-Milestone 8 implements the controlled demo reversal required by Scope §22 and Screen Inventory §37, restricted to finance/supervisor permissions. Refund approval, partial refunds, adjustments and reconciliation remain their assigned later milestones. No live provider or treasury credentials are required for demo simulation. See ADR-011.
+Milestone 8 implements the controlled demo reversal required by Scope §22 and Screen Inventory §37, restricted to finance/supervisor permissions. Refund approval, partial refunds, adjustments remain Milestone 11; reconciliation is implemented in Milestone 10. No live provider or treasury credentials are required for demo simulation. See ADR-011.
+
+Milestone 10 demo settlements require no live provider or treasury credentials. Government account references remain unset and synthetic provider fees are zero. Confirm authorized provider feeds, fee policy and government account details before a future live settlement integration; this does not block the approved demo workflow. See ADR-013.

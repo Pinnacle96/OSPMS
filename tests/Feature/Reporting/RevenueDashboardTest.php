@@ -98,7 +98,8 @@ class RevenueDashboardTest extends FoundationTestCase
         }
         $this->assertSame(['300.30', '-100.10', '0.00'], array_column($finance['revenue_trend'], 'net'));
         $this->assertSame('0.00', $finance['summary']['today']['net']);
-        $this->assertFalse($finance['reconciliation_available']);
+        $this->assertTrue($finance['reconciliation_available']);
+        $this->assertSame(2, $finance['pending_reconciliation']);
         $this->assertStringNotContainsString('PRIVATE-', json_encode($finance));
         $this->get($finance['ledger_url'])->assertInertia(fn (Assert $p) => $p->where('records.total', 3));
     }
