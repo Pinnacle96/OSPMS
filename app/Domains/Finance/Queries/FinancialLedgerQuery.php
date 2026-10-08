@@ -5,7 +5,7 @@ namespace App\Domains\Finance\Queries;
 use App\Domains\Finance\Models\FinancialTransaction;
 use App\Domains\Identity\Models\User;
 use App\Domains\Identity\Services\UserAccessScopeService;
-use Carbon\CarbonImmutable;
+use App\Domains\Payments\Queries\FinancialDateFilter;
 
 class FinancialLedgerQuery
 {
@@ -29,11 +29,7 @@ class FinancialLedgerQuery
                 $q->whereHas('ticket', fn ($t) => $t->where($field, $filters[$field]));
             }
         }
-        if (! empty($filters['from'])) {
-            $q->where('occurred_at', '>=', $filters['from'].' 00:00:00');
-        } if (! empty($filters['to'])) {
-            $q->where('occurred_at', '<', CarbonImmutable::parse($filters['to'])->addDay());
-        }
+        app(FinancialDateFilter::class)->apply($q, 'occurred_at', $filters);
         $sort = in_array($filters['sort'] ?? '', ['amount', 'occurred_at', 'transaction_reference'], true) ? $filters['sort'] : 'occurred_at';
 
         return $q->orderBy($sort, ($filters['order'] ?? '') === 'asc' ? 'asc' : 'desc')->orderByDesc('id')->paginate(15)->withQueryString()->through(fn ($t) => [

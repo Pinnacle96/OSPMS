@@ -25,6 +25,7 @@ class HandleInertiaRequests extends Middleware
         $nav = [];
         foreach ([
             ['Dashboard', '/dashboard', 'OVERVIEW', 'dashboard', 'view_state_dashboard'],
+            ['Executive Dashboard', '/executive/dashboard', 'OVERVIEW', 'dashboard', 'view_executive_dashboard'],
             ['LGAs', '/lgas', 'OPERATIONS', 'geography', 'view_lga'],
             ['Parks', '/parks', 'OPERATIONS', 'parks', 'view_park'],
             ['Routes', '/routes', 'OPERATIONS', 'routes', 'view_route'],
@@ -34,6 +35,7 @@ class HandleInertiaRequests extends Middleware
             ['Assignments', '/assignments', 'OPERATIONS', 'assignments', 'view_assignment'],
             ['Tickets', '/tickets', 'TICKETING', 'fees', 'view_ticket'],
             ['Payments', '/payments', 'FINANCE', 'revenue', 'view_payment'],
+            ['Revenue Dashboard', '/finance/dashboard', 'FINANCE', 'revenue', 'view_revenue_dashboard'],
             ['Ledger', '/finance/ledger', 'FINANCE', 'revenue', 'view_financial_ledger'],
             ['Revenue heads', '/revenue-heads', 'FINANCE', 'revenue', 'view_revenue_head'],
             ['Fee configurations', '/fee-configurations', 'FINANCE', 'fees', 'view_fee_configuration'],

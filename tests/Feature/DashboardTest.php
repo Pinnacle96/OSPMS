@@ -9,7 +9,7 @@ class DashboardTest extends FoundationTestCase
 {
     public function test_authorized_user_reaches_dashboard_with_backend_zero_states(): void
     {
-        $this->actingAs($this->userWithRole('State Administrator'))->get('/dashboard')->assertOk()->assertInertia(fn (Assert $page) => $page->component('Dashboard/State')->has('metrics', 9)->where('metrics.0.value', '0.00')->where('scope_label', 'Statewide')->has('revenue_trend', 0));
+        $this->actingAs($this->userWithRole('State Administrator'))->get('/dashboard')->assertOk()->assertInertia(fn (Assert $page) => $page->component('Dashboard/State')->has('metrics', 9)->where('metrics.0.value', '0.00')->where('scope_label', 'Statewide')->has('finance.revenue_trend', 0));
     }
 
     public function test_scoped_user_cannot_access_state_dashboard_by_url(): void

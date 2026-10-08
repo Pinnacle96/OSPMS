@@ -11,6 +11,7 @@ use App\Domains\Parks\Models\Park;
 use App\Domains\Reporting\Queries\LocalDashboardQuery;
 use App\Domains\Reporting\Queries\TransportConnectionsQuery;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DashboardRequest;
 use App\Http\Requests\Operations\RegistryFilterRequest;
 use App\Http\Requests\Operations\SaveLgaRequest;
 use Illuminate\Http\Request;
@@ -68,8 +69,8 @@ class LgaController extends Controller
         return to_route('lgas.index')->with('success', 'LGA archived.');
     }
 
-    public function dashboard(Request $request, Lga $lga, LocalDashboardQuery $query)
+    public function dashboard(DashboardRequest $request, Lga $lga, LocalDashboardQuery $query)
     {
-        return Inertia::render('Dashboard/Lga', $query->get($request->user(), $lga));
+        return Inertia::render('Dashboard/Lga', $query->get($request->user(), $lga, $request->validated()))->toResponse($request)->withHeaders(['Cache-Control' => 'private, no-store', 'Referrer-Policy' => 'no-referrer']);
     }
 }

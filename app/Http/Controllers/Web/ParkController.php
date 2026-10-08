@@ -15,6 +15,7 @@ use App\Domains\Reporting\Queries\LocalDashboardQuery;
 use App\Domains\Reporting\Queries\TransportConnectionsQuery;
 use App\Domains\Routes\Models\Route;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DashboardRequest;
 use App\Http\Requests\Operations\AssignParkRoutesRequest;
 use App\Http\Requests\Operations\RegistryFilterRequest;
 use App\Http\Requests\Operations\SaveParkRequest;
@@ -90,8 +91,8 @@ class ParkController extends Controller
         return back()->with('success', 'Approved routes updated.');
     }
 
-    public function dashboard(Request $request, Park $park, LocalDashboardQuery $query)
+    public function dashboard(DashboardRequest $request, Park $park, LocalDashboardQuery $query)
     {
-        return Inertia::render('Dashboard/Park', $query->get($request->user(), $park));
+        return Inertia::render('Dashboard/Park', $query->get($request->user(), $park, $request->validated()))->toResponse($request)->withHeaders(['Cache-Control' => 'private, no-store', 'Referrer-Policy' => 'no-referrer']);
     }
 }

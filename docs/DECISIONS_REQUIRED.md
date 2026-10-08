@@ -1,6 +1,6 @@
 # Decisions requiring clarification
 
-No material conflict blocks Milestones 0–8.
+No material conflict blocks Milestones 0–9.
 
 Route geography is derived through approved ParkRoute relationships rather than adding an unapproved LGA column; see ADR-007. Milestone 3 management permissions follow the existing granular authorization approach.
 

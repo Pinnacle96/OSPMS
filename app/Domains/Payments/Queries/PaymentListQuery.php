@@ -5,7 +5,6 @@ namespace App\Domains\Payments\Queries;
 use App\Domains\Identity\Models\User;
 use App\Domains\Identity\Services\UserAccessScopeService;
 use App\Domains\Payments\Models\Payment;
-use Carbon\CarbonImmutable;
 
 class PaymentListQuery
 {
@@ -29,11 +28,7 @@ class PaymentListQuery
                 $q->whereHas('ticket', fn ($t) => $t->where($field, $filters[$field]));
             }
         }
-        if (! empty($filters['from'])) {
-            $q->where('initiated_at', '>=', $filters['from'].' 00:00:00');
-        } if (! empty($filters['to'])) {
-            $q->where('initiated_at', '<', CarbonImmutable::parse($filters['to'])->addDay());
-        }
+        app(FinancialDateFilter::class)->apply($q, 'initiated_at', $filters);
         $sort = in_array($filters['sort'] ?? '', ['amount', 'initiated_at', 'payment_reference'], true) ? $filters['sort'] : 'initiated_at';
 
         return $q->orderBy($sort, ($filters['order'] ?? '') === 'asc' ? 'asc' : 'desc')->orderByDesc('id')->paginate(15)->withQueryString()->through(fn ($p) => [

@@ -2,7 +2,7 @@
 
 Government-facing park operations and revenue administration platform. Technology Solution by **Pinnacle Tech Hub**.
 
-This repository currently implements **Milestones 0–8**: the Laravel foundation, authentication/RBAC, account and user administration, scoped geography and transport registries, assignments, private documents, revenue configuration, tickets, demo payments, receipts and an immutable ledger. Revenue dashboards, reconciliation, enforcement and reports remain in their approved later milestones.
+This repository currently implements **Milestones 0–9**: the Laravel foundation, authentication/RBAC, account and user administration, scoped geography and transport registries, assignments, private documents, revenue configuration, tickets, demo payments, receipts, an immutable ledger and revenue dashboards. Reconciliation, enforcement and reports remain in their approved later milestones.
 
 Government retains policy, regulatory authority and ownership of operational and financial data. Pinnacle Tech Hub is the technology provider.
 
@@ -15,7 +15,7 @@ Read these before changing functionality, in this precedence order:
 3. [Screen Inventory v1.0](docs/SCREEN_INVENTORY_v1.0.md)
 4. [Architecture & Implementation Plan v1.0](docs/ARCHITECTURE_IMPLEMENTATION_PLAN_v1.0.md)
 
-Implementation notes: [Decisions](docs/DECISIONS.md), [Required decisions](docs/DECISIONS_REQUIRED.md), [Status](docs/IMPLEMENTATION_STATUS.md), [Milestone 8 validation](docs/MILESTONE_8_VALIDATION.md), [Milestone 7 validation](docs/MILESTONE_7_VALIDATION.md), [Milestones 4–6 validation](docs/MILESTONES_4_6_VALIDATION.md), [Milestone 3 validation](docs/MILESTONE_3_VALIDATION.md), [Foundation validation](docs/VALIDATION.md).
+Implementation notes: [Decisions](docs/DECISIONS.md), [Required decisions](docs/DECISIONS_REQUIRED.md), [Status](docs/IMPLEMENTATION_STATUS.md), [Milestone 9 validation](docs/MILESTONE_9_VALIDATION.md), [Milestone 8 validation](docs/MILESTONE_8_VALIDATION.md), [Milestone 7 validation](docs/MILESTONE_7_VALIDATION.md), [Milestones 4–6 validation](docs/MILESTONES_4_6_VALIDATION.md), [Milestone 3 validation](docs/MILESTONE_3_VALIDATION.md), [Foundation validation](docs/VALIDATION.md).
 
 ## Stack and architecture
 
@@ -117,7 +117,7 @@ Use a park's **Routes** tab to assign approved active routes. Assignment require
 
 Status changes require UI confirmation and are audited. An active park requires an active LGA; active parks must be suspended/deactivated before deactivating their LGA. First activation time is retained across suspension/reactivation. Archives use soft deletion and are blocked when linked registry history exists, including inactive assignments and archived child parks. Use inactive status for those records.
 
-LGA/Park dashboards use actual scoped park, route, operator, driver, vehicle and ticket counts. Related profile tabs include scoped tickets. Financial dashboard aggregation remains unavailable until Milestone 9; use Payments and Ledger to inspect the implemented financial records.
+LGA/Park dashboards use actual scoped park, route, operator, driver, vehicle and ticket counts. Related profile tabs include scoped tickets. Milestone 9 adds permission-controlled financial totals, trends, breakdowns and recent transactions from the retained ledger.
 
 ## Operators, drivers, vehicles and assignments
 
@@ -160,6 +160,18 @@ Finance Administrator and Super Administrator can perform a controlled **demo re
 Receipt PDFs use Dompdf in PHP with remote resources, embedded PHP and JavaScript disabled. No Node service or external rendering service is required. Keep `storage/framework/cache` writable. Secure QR links depend on the configured reachable `APP_URL`; do not place verification URLs in analytics or access logs exposed to other users.
 
 Milestone 8 seeds three labelled synthetic payment attempts (successful, failed and pending) through the normal actions. Repeated seeding and demo reset preserve payments, receipts, ledger entries, reversals, idempotency keys and audit history. Reset does not restore a reversed payment or manufacture another receipt. See ADR-011 for transaction and retention decisions.
+
+## Revenue dashboards
+
+Open **Dashboard**, **Executive Dashboard** or **Finance → Revenue Dashboard**. LGA and Park profiles link to their local dashboards. Executive accounts land on their read-only summary; navigation and routes require their own dashboard permissions. Revenue permission and historical ticket scope are checked separately. A park viewer without revenue permission receives operational counts only. Park Managers can view their collection summary and payment history without gaining ledger access.
+
+Financial filters default to month-to-date in `OSPM_TIMEZONE` (Africa/Lagos). Choose up to 366 calendar days and optional LGA, park, revenue head and payment channel. Local dashboard identity is fixed by its URL. Today and month-to-date cards use their named periods with the same dimension filters; registry counts show current operational access and do not change with financial filters.
+
+**Gross credits** total retained ledger credits; **debits** include reversals; **net revenue** is credits minus debits, using ledger occurrence dates. A reversal in a later period creates a negative entry in that period and does not erase the earlier collection. Failed/pending payment attempts contribute no ledger revenue. Status and channel charts count attempts initiated in the selected period using their current status, so they are distinct from ledger entry counts. Phase 1 financial summaries use NGN only.
+
+Charts show daily net revenue, revenue by LGA/park/revenue head, payment status and payment channels. Keyboard chart navigation and expandable exact figures are available. Distribution charts show up to ten groups; their exact figure tables include all matching groups. Authorized links open Payments/Ledger with matching date, timezone, currency and scope filters. Lists opened directly retain UTC date defaults. Geography follows the ticket's retained LGA/park IDs, including after a park move; distribution labels use current retained registry names.
+
+Dashboard aggregation runs in Laravel queries against committed records, with exact MySQL DECIMAL sums and decimal-string arithmetic. Recharts receives numeric values for plot coordinates only; React does not calculate revenue. No aggregate tables, financial writes or dashboard cache are introduced. Reconciliation status/exceptions remain visibly unavailable until Milestone 10, and totals do not imply treasury settlement. See ADR-012.
 
 ## Password recovery and sessions
 
@@ -211,7 +223,7 @@ Remove-Item Env:\DB_CONNECTION
 Remove-Item Env:\DB_DATABASE
 ```
 
-The test suite recreates its configured database tables. Never point it at an operational/demo database that must be retained. See [the current validation report](docs/MILESTONE_8_VALIDATION.md) for executed checks, including MySQL 8.4.
+The test suite recreates its configured database tables. Never point it at an operational/demo database that must be retained. See [the current validation report](docs/MILESTONE_9_VALIDATION.md) for executed checks, including MySQL 8.4.
 
 ## Queues and scheduler
 
@@ -239,4 +251,4 @@ No live Government treasury or revenue collection integration exists. Production
 
 Do not expose synthetic presentation accounts publicly with shared/weak passwords. Keep credentials and application keys out of source control, use HTTPS and separate environments, and perform the later security/QA release gate before any government pilot. Existing automated tests and RBAC provide a foundation; they do not certify the entire unbuilt Phase 1 product.
 
-No microservices, native mobile apps, biometrics, tracking, passenger bookings, wallets, AI fraud detection or other out-of-scope workflows have been added. The complete demonstration journey will be delivered in the approved milestone sequence. The next feature milestone is **Milestone 9 — Revenue Dashboards**.
+No microservices, native mobile apps, biometrics, tracking, passenger bookings, wallets, AI fraud detection or other out-of-scope workflows have been added. The complete demonstration journey will be delivered in the approved milestone sequence. The next feature milestone is **Milestone 10 — Settlement + Reconciliation**.

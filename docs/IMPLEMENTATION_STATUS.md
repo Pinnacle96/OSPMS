@@ -1,7 +1,7 @@
 # Implementation status
 
 Build date: 2026-10-08 (Africa/Lagos)
-Current authorization: continue through Milestone 8. Milestones 0–7 were completed and integrated previously.
+Current authorization: continue through Milestone 9. Milestones 0–8 were completed and integrated previously.
 
 - [x] Milestone 0 — Project Bootstrap
 - [x] Milestone 1 — Authentication + RBAC
@@ -12,7 +12,7 @@ Current authorization: continue through Milestone 8. Milestones 0–7 were compl
 - [x] Milestone 6 — Revenue Heads & Fee Configuration
 - [x] Milestone 7 — Ticketing + QR
 - [x] Milestone 8 — Demo Payments + Receipts + Ledger
-- [ ] Milestone 9 — Revenue Dashboards
+- [x] Milestone 9 — Revenue Dashboards
 - [ ] Milestone 10 — Settlement + Reconciliation
 - [ ] Milestone 11 — Refunds & Adjustments
 - [ ] Milestone 12 — Enforcement PWA
@@ -59,7 +59,7 @@ Blocked: none.
 
 Tests: TypeScript, ESLint, production build and browser smoke passed. Screenshots inspected at 1440 × 1000 and 390 × 844; mobile navigation and horizontal overflow checks passed. Automated axe checks reported zero WCAG A/AA violations on login, dashboard and users desktop pages, and the mobile dashboard. Automated checks are not a complete accessibility certification.
 
-Known issues: payment/receipt/ledger workflows now exist in Milestone 8; dashboard financial aggregation and charts remain Milestone 9. Dashboard empty areas explicitly disclose this. Recent activity is real and permission-filtered. The Field layout is a foundation only; no field routes, service worker or scanner is implemented.
+Known issues: payment/receipt/ledger workflows exist in Milestone 8 and financial dashboard aggregation/charts in Milestone 9. Recent activity is real and permission/scope-filtered. The Field layout is a foundation only; no field routes, service worker or scanner is implemented.
 
 ## Milestone 3
 
@@ -131,12 +131,24 @@ Blocked: none for this milestone.
 
 Tests: full SQLite and MySQL suites, real two-process MySQL payment/audit races, browser collection/reversal/verification flows, PDF rendering and QR decoding, mobile overflow checks and 25 accessibility samples. See [Milestone 8 validation](MILESTONE_8_VALIDATION.md) for final counts and executed checks.
 
-Known issues: revenue dashboard aggregation remains Milestone 9. Settlement/reconciliation, refund approval and adjustments remain Milestones 10–11. Demo writes refuse production. Receipt PDF requires writable framework cache; verification requires reachable APP_URL. Existing SMTP, object storage and unspecified repository license limitations remain. Financial model guards and hash chaining do not replace database privilege controls and protected backups.
+Known issues: revenue dashboards are implemented in Milestone 9. Settlement/reconciliation, refund approval and adjustments remain Milestones 10–11. Demo writes refuse production. Receipt PDF requires writable framework cache; verification requires reachable APP_URL. Existing SMTP, object storage and unspecified repository license limitations remain. Financial model guards and hash chaining do not replace database privilege controls and protected backups.
+
+## Milestone 9
+
+Completed: SCR-007–011. State, Executive, Revenue, LGA and Park dashboards; exact gross/debit/net ledger totals; today/month-to-date and selected-period counts; daily trends and revenue by LGA/park/revenue head; current payment status and channel distributions; six recent transactions; financial permission redaction; original ticket geography; scoped dimension/date filters; matching Payments/Ledger links; read-only executive landing; Recharts with keyboard support and exact figures; responsive/empty/loading/error states. No financial schema changes or dashboard writes.
+
+In progress: none.
+
+Blocked: none for this milestone.
+
+Tests: MySQL 131 passed / 2,688 assertions; SQLite 130 passed / 2,685 assertions with one MySQL-only precision skip. Coverage includes exact totals and every grouping, failed/pending exclusions, reversals across periods, midnight/DST boundaries, decimal capacity, scoped/permission access, archived/moved park history, matching detail queries and absence of GET mutations. Browser checks cover all five dashboards, a fresh payment and reversal, keyboard charts, five mobile pages and 16 accessibility samples. See [Milestone 9 validation](MILESTONE_9_VALIDATION.md).
+
+Known issues: reconciliation metrics and exceptions remain unavailable until Milestone 10; no settlement is implied. Status charts show the current status of attempts initiated in the period, while revenue uses ledger occurrence dates. Financial summaries are NGN-only. SQLite retains its existing large-value numeric-affinity limitation; MySQL verifies production precision. Existing SMTP/object storage/license/expiry-policy limitations remain.
 
 ## Later milestones
 
 Completed: none.
 In progress: none.
-Blocked: Milestones 9–20 have not been authorized; not started.
+Blocked: Milestones 10–20 have not been authorized; not started.
 Tests: no later workflow is claimed as tested.
 Known issues: the complete Phase 1 financial and operational presentation journey is not yet available.

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\Auth;
 use App\Domains\Identity\Enums\UserStatus;
 use App\Domains\Identity\Models\User;
 use App\Domains\Identity\Services\LoginActivityService;
+use App\Domains\Reporting\Services\DashboardDestination;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\Request;
@@ -39,7 +40,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
         $user->forceFill(['last_login_at' => now()])->save();
         $activity->record($user, 'login_success', $request);
-        $destination = $user->must_change_password ? 'account.security' : ($user->can('view_state_dashboard') ? 'dashboard.state' : 'account.access');
+        $destination = $user->must_change_password ? 'account.security' : app(DashboardDestination::class)->route($user);
 
         return redirect()->intended(route($destination));
     }

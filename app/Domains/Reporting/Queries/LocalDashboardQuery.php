@@ -8,6 +8,7 @@ use App\Domains\Identity\Models\User;
 use App\Domains\Identity\Services\UserAccessScopeService;
 use App\Domains\Operators\Models\Operator;
 use App\Domains\Parks\Models\Park;
+use App\Domains\Reporting\Services\DashboardDateRange;
 use App\Domains\Routes\Models\Route;
 use App\Domains\Ticketing\Models\Ticket;
 use App\Domains\Vehicles\Models\Vehicle;
@@ -15,10 +16,13 @@ use Illuminate\Support\Facades\Gate;
 
 class LocalDashboardQuery
 {
-    public function get(User $user, Lga|Park $record): array
+    public function get(User $user, Lga|Park $record, array $filters = []): array
     {
         Gate::forUser($user)->authorize('view', $record);
         $lga = $record instanceof Lga;
+        $filters[$lga ? 'lga_id' : 'park_id'] = $record->id;
+        $range = app(DashboardDateRange::class)->resolve($filters);
+        $finance = app(RevenueDashboardQuery::class)->get($user, $filters, $range, $record);
         $parks = app(UserAccessScopeService::class)->scopeParks(Park::query(), $user);
         if ($lga) {
             $parks->where('lga_id', $record->id);
@@ -39,14 +43,13 @@ class LocalDashboardQuery
         $tickets = app(UserAccessScopeService::class)->scopeTickets(Ticket::query(), $user)
             ->where($lga ? 'lga_id' : 'park_id', $record->id);
         $metrics[] = ['label' => 'Tickets', 'value' => $user->can('view_ticket') ? $tickets->count() : 0, 'note' => $user->can('view_ticket') ? 'Issued tickets within your access' : 'Ticket access restricted'];
-        foreach (['Transactions', 'Pending reconciliation'] as $label) {
-            $metrics[] = ['label' => $label, 'value' => 0, 'note' => 'Dashboard aggregation not yet enabled'];
-        }
-        $metrics[] = ['label' => $lga ? "Today's revenue" : "Today's collections", 'value' => '0.00', 'money' => true, 'note' => 'Revenue dashboard aggregation not yet enabled'];
+        $metrics[] = ['label' => 'Transactions', 'value' => $finance['summary']['transactions'] ?? null, 'note' => $finance ? 'Credits and debits in selected period' : 'Revenue access restricted'];
+        $metrics[] = ['label' => 'Pending reconciliation', 'value' => null, 'note' => 'Available in Milestone 10'];
+        $metrics[] = ['label' => $lga ? "Today's revenue" : "Today's collections", 'value' => $finance['summary']['today']['net'] ?? null, 'money' => true, 'note' => $finance ? 'Ledger credits minus debits • '.config('ospm.timezone').' today' : 'Revenue access restricted'];
         if ($lga) {
-            $metrics[] = ['label' => 'Monthly revenue', 'value' => '0.00', 'money' => true, 'note' => 'Revenue dashboard aggregation not yet enabled'];
+            $metrics[] = ['label' => 'Monthly revenue', 'value' => $finance['summary']['month']['net'] ?? null, 'money' => true, 'note' => $finance ? 'Month to date • ledger credits minus debits' : 'Revenue access restricted'];
         }
 
-        return ['record' => $record->only('id', 'public_id', 'name', 'status'), 'metrics' => $metrics, 'kind' => $lga ? 'lgas' : 'parks', 'as_of' => now()->toIso8601String()];
+        return ['record' => $record->only('id', 'public_id', 'name', 'status'), 'metrics' => $metrics, 'kind' => $lga ? 'lgas' : 'parks', 'as_of' => now()->toIso8601String(), 'finance' => $finance, 'filters' => [...$filters, 'from' => $range['from'], 'to' => $range['to']]];
     }
 }

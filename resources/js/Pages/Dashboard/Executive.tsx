@@ -1,3 +1,3 @@
 import OverviewDashboard from '@/Components/Dashboards/OverviewDashboard';
 import type { DashboardProps } from '@/types/dashboards';
-export default function State(props: DashboardProps) { return <OverviewDashboard {...props} />; }
+export default function Executive(props: DashboardProps) { return <OverviewDashboard {...props} mode="executive" />; }
