@@ -2,7 +2,7 @@
 
 Government-facing park operations and revenue administration platform. Technology Solution by **Pinnacle Tech Hub**.
 
-This repository currently implements **Milestones 0–7**: the Laravel foundation, authentication/RBAC, account and user administration, scoped LGA/Park/Route and transport registries, assignments, private documents, revenue heads, fee configurations and tickets with public QR verification. Payments, ledger, reconciliation, enforcement and reports remain in their approved later milestones.
+This repository currently implements **Milestones 0–8**: the Laravel foundation, authentication/RBAC, account and user administration, scoped geography and transport registries, assignments, private documents, revenue configuration, tickets, demo payments, receipts and an immutable ledger. Revenue dashboards, reconciliation, enforcement and reports remain in their approved later milestones.
 
 Government retains policy, regulatory authority and ownership of operational and financial data. Pinnacle Tech Hub is the technology provider.
 
@@ -15,7 +15,7 @@ Read these before changing functionality, in this precedence order:
 3. [Screen Inventory v1.0](docs/SCREEN_INVENTORY_v1.0.md)
 4. [Architecture & Implementation Plan v1.0](docs/ARCHITECTURE_IMPLEMENTATION_PLAN_v1.0.md)
 
-Implementation notes: [Decisions](docs/DECISIONS.md), [Required decisions](docs/DECISIONS_REQUIRED.md), [Status](docs/IMPLEMENTATION_STATUS.md), [Milestone 7 validation](docs/MILESTONE_7_VALIDATION.md), [Milestones 4–6 validation](docs/MILESTONES_4_6_VALIDATION.md), [Milestone 3 validation](docs/MILESTONE_3_VALIDATION.md), [Foundation validation](docs/VALIDATION.md).
+Implementation notes: [Decisions](docs/DECISIONS.md), [Required decisions](docs/DECISIONS_REQUIRED.md), [Status](docs/IMPLEMENTATION_STATUS.md), [Milestone 8 validation](docs/MILESTONE_8_VALIDATION.md), [Milestone 7 validation](docs/MILESTONE_7_VALIDATION.md), [Milestones 4–6 validation](docs/MILESTONES_4_6_VALIDATION.md), [Milestone 3 validation](docs/MILESTONE_3_VALIDATION.md), [Foundation validation](docs/VALIDATION.md).
 
 ## Stack and architecture
 
@@ -25,7 +25,7 @@ Implementation notes: [Decisions](docs/DECISIONS.md), [Required decisions](docs/
 - MySQL 8 target with InnoDB; database queues/cache/sessions
 - SQLite for fast isolated tests; MySQL integration tests supported
 
-`app/Domains` contains the approved domain boundaries. Controllers adapt requests/responses; Actions perform writes; Services own shared rules; Queries own scoped filtering. React presents server-provided data. Future financial workflows must use decimal-safe amounts, immutable records and idempotent transactions as prescribed by the schema.
+`app/Domains` contains the approved domain boundaries. Controllers adapt requests/responses; Actions perform writes; Services own shared rules; Queries own scoped filtering. React presents server-provided data. Financial writes use decimal strings, immutable ledger/receipt records, row locks and idempotent database transactions.
 
 LGAs, Parks and Routes connect to Operators through retained park/route approvals, and to Drivers and Vehicles through historical DriverAssignments. Tickets retain their original fees and operating context independently of later registry changes. See ADR-007–010.
 
@@ -60,7 +60,7 @@ PAYMENT_PROVIDER=demo
 DEMO_DEFAULT_PASSWORD=your_unique_strong_demo_password
 ```
 
-Choose a demo password with at least 12 characters, mixed case and a number. No default password is committed. Payment configuration reserves the approved demo mode; no payment gateway is implemented in this milestone.
+Choose a demo password with at least 12 characters, mixed case and a number. No default password is committed. The implemented gateway simulates payments only. It requires all three demo settings above and refuses the production environment; no real funds are charged.
 
 ```powershell
 php artisan migrate
@@ -107,7 +107,7 @@ Milestone 3 seeds three clearly labelled demo LGAs, parks and routes. These are 
 php artisan ospm:demo-reset
 ```
 
-The command refuses non-demo and production environments. It restores demo passwords/status/roles, baseline registry scopes and sessions, and ensures missing demo registry records exist. It preserves other accounts, existing registry edits/archives, route assignment history and audit history. It does not restore an archived registry record or reset its edited status. Issued tickets and their original fees/statuses are retained; reset does not delete or recreate cancelled tickets. Future transactional reset behavior belongs to later financial milestones. There is no reset button or public reset route.
+The command refuses non-demo and production environments. It restores demo passwords/status/roles, baseline registry scopes and sessions, and ensures missing demo registry records exist. It preserves other accounts, existing registry edits/archives, route assignment history and audit history. It does not restore an archived registry record or reset its edited status. Issued tickets, payments, receipts, ledger and financial audit history are retained; reset does not recreate cancelled tickets or reversed payments. There is no reset button or public reset route.
 
 ## LGA, Park and Route workflows
 
@@ -117,7 +117,7 @@ Use a park's **Routes** tab to assign approved active routes. Assignment require
 
 Status changes require UI confirmation and are audited. An active park requires an active LGA; active parks must be suspended/deactivated before deactivating their LGA. First activation time is retained across suspension/reactivation. Archives use soft deletion and are blocked when linked registry history exists, including inactive assignments and archived child parks. Use inactive status for those records.
 
-LGA/Park dashboards use actual scoped park, route, operator, driver, vehicle and ticket counts. Related profile tabs include scoped tickets. Collected revenue remains zero until payments are implemented.
+LGA/Park dashboards use actual scoped park, route, operator, driver, vehicle and ticket counts. Related profile tabs include scoped tickets. Financial dashboard aggregation remains unavailable until Milestone 9; use Payments and Ledger to inspect the implemented financial records.
 
 ## Operators, drivers, vehicles and assignments
 
@@ -137,7 +137,7 @@ Fee amounts use decimal strings and MySQL DECIMAL(15,2), with NGN currency. Conf
 
 The backend fee resolver chooses park scope before LGA before statewide, then route and vehicle specificity, then higher priority, then the latest effective start. Equally ranked conflicts are rejected for finance review. Every non-null constraint must match. See ADR-009 for the full ordering.
 
-Once a fee takes effect, its terms are immutable; it may be deactivated. Create a new future fee for replacement terms. Future configurations can be edited. Issued tickets snapshot their resolved fee and operating context. This build creates unpaid obligations and does not collect funds.
+Once a fee takes effect, its terms are immutable; it may be deactivated. Create a new future fee for replacement terms. Future configurations can be edited. Issued tickets snapshot their resolved fee and operating context. Ticket issuance creates unpaid obligations; demo payments record simulated collection only.
 
 ## Tickets and public verification
 
@@ -148,6 +148,18 @@ Tickets start pending/unpaid. Their fee, amount, currency, issuer and operating 
 QR codes link to `/verify/ticket/{token}` on the configured `APP_URL`. Set `APP_URL` to the address reachable by the scanning device, using HTTPS for deployment; localhost is only reachable on the same machine. Public verification shows an allowlist of ticket reference, vehicle plate, park, fee, amount, dates and statuses. It excludes private driver/operator data and signed-in account details. An unpaid ticket is authentic but requires payment; only a paid ticket with paid payment status and unexpired validity is valid for use. Invalid tokens return the same safe not-found page. Ticket printouts are not payment receipts.
 
 `OSPM_TICKET_EXPIRY_MINUTES` is blank by default because no policy duration was supplied. Configure a positive number of minutes only when the applicable validity policy is known. New tickets capture the resulting expiry; existing tickets are unchanged. Run `php artisan ospm:tickets-expire` manually or through the scheduler. Cancelled/reversed records retain their status. Expiry never changes the original amount or payment status.
+
+## Demo payments, receipts and ledger
+
+Open an eligible ticket and select **Demo payment**. Ticketing Officers and Collection Agents need collection permission and manage access to its original park. Select successful, failed or pending and confirm the clearly labelled simulation. Amount and currency come from the ticket snapshot, never the submitted browser values. Success creates one canonical receipt and ledger credit atomically. Failed attempts remain history and permit a fresh attempt; pending attempts can be resolved on their payment detail screen. Refreshing or replaying the same confirmation cannot create another payment or credit.
+
+Open **Finance → Payments** to search and filter permitted payment history. Receipt detail offers HTML print, a server-generated PDF and a public QR verification link. Downloads require receipt permission and the ticket's original scope. The public receipt page excludes private identity, account, token and audit data. It proves the recorded payment independently of ticket expiry; the ticket verification page separately determines validity for use. Reversing a payment invalidates both current verification results while retaining the original receipt and credit.
+
+Finance Administrator and Super Administrator can perform a controlled **demo reversal**, with a required reason and confirmation. It creates a linked debit and retains the original credit. Collectors and read-only roles cannot reverse. Open **Finance → Ledger** for scoped, read-only credits and reversals, search, filters, ordering and transaction traceability. LGA Administrators see their permitted historical geography; collector and Park Manager defaults have no ledger access. Refund approvals, adjustments, settlement and reconciliation remain later milestones.
+
+Receipt PDFs use Dompdf in PHP with remote resources, embedded PHP and JavaScript disabled. No Node service or external rendering service is required. Keep `storage/framework/cache` writable. Secure QR links depend on the configured reachable `APP_URL`; do not place verification URLs in analytics or access logs exposed to other users.
+
+Milestone 8 seeds three labelled synthetic payment attempts (successful, failed and pending) through the normal actions. Repeated seeding and demo reset preserve payments, receipts, ledger entries, reversals, idempotency keys and audit history. Reset does not restore a reversed payment or manufacture another receipt. See ADR-011 for transaction and retention decisions.
 
 ## Password recovery and sessions
 
@@ -199,7 +211,7 @@ Remove-Item Env:\DB_CONNECTION
 Remove-Item Env:\DB_DATABASE
 ```
 
-The test suite recreates its configured database tables. Never point it at an operational/demo database that must be retained. See [the current validation report](docs/MILESTONE_7_VALIDATION.md) for executed checks, including MySQL 8.4.
+The test suite recreates its configured database tables. Never point it at an operational/demo database that must be retained. See [the current validation report](docs/MILESTONE_8_VALIDATION.md) for executed checks, including MySQL 8.4.
 
 ## Queues and scheduler
 
@@ -227,4 +239,4 @@ No live Government treasury or revenue collection integration exists. Production
 
 Do not expose synthetic presentation accounts publicly with shared/weak passwords. Keep credentials and application keys out of source control, use HTTPS and separate environments, and perform the later security/QA release gate before any government pilot. Existing automated tests and RBAC provide a foundation; they do not certify the entire unbuilt Phase 1 product.
 
-No microservices, native mobile apps, biometrics, tracking, passenger bookings, wallets, AI fraud detection or other out-of-scope workflows have been added. The complete demonstration journey will be delivered in the approved milestone sequence. The next feature milestone is **Milestone 8 — Demo Payments + Receipts + Ledger**.
+No microservices, native mobile apps, biometrics, tracking, passenger bookings, wallets, AI fraud detection or other out-of-scope workflows have been added. The complete demonstration journey will be delivered in the approved milestone sequence. The next feature milestone is **Milestone 9 — Revenue Dashboards**.

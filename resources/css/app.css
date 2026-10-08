@@ -275,3 +275,6 @@ legend { font-size: 13px; font-weight: 600; margin-bottom: 16px; }
 .verification-card { max-width: 780px; margin: 0 auto; } .verification-banner { padding: 28px; border-top: 5px solid #9c3030; background: #fff3f3; } .verification-banner.valid { border-color: #176346; background: #edf9f2; } .verification-banner.pending { border-color: #80580d; background: #fff9e9; } .verification-banner h1 { font-size: 26px; margin: 10px 0; } .verification-banner p { font-size: 14px; line-height: 1.65; }
 @media (max-width: 760px) { .ticket-summary { grid-template-columns: minmax(0, 1fr); } .ticket-qr { max-width: 280px; justify-self: center; } }
 @media print { .print-actions, .public-shell > footer { display: none !important; } .public-shell, .public-shell > main { padding: 0; background: white; } .printable-ticket { box-shadow: none; border: 0; } .ticket-summary { grid-template-columns: minmax(0, 1fr) 220px; gap: 20px; } .ticket-qr { break-inside: avoid; } .ticket-qr img { width: 220px; } .detail-list > div { break-inside: avoid; } }
+
+.demo-payment-banner { margin-bottom: 24px; border-color: #d9bc7c; background: #fff9e9; }
+.payment-form, .related-finance { margin-top: 24px; } .payment-form { display: flex; flex-direction: column; gap: 18px; max-width: 640px; } .related-finance p { overflow-wrap: anywhere; margin-top: 12px; }

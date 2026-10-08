@@ -1,6 +1,6 @@
 # Decisions requiring clarification
 
-No material conflict blocks Milestones 0–7.
+No material conflict blocks Milestones 0–8.
 
 Route geography is derived through approved ParkRoute relationships rather than adding an unapproved LGA column; see ADR-007. Milestone 3 management permissions follow the existing granular authorization approach.
 
@@ -11,3 +11,5 @@ MySQL 8 validation is resolved using an isolated MySQL 8.4.11 instance on port 3
 Repository license metadata was not supplied. It remains unset; Composer's strict schema validation reports this non-runtime warning. No license policy has been invented.
 
 Ticket expiry duration was not specified. Milestone 7 leaves expiry unset by default and supports a configurable duration for new tickets; confirm Government validity policy before enabling it. This does not block issuance or safe verification. See ADR-010.
+
+Milestone 8 implements the controlled demo reversal required by Scope §22 and Screen Inventory §37, restricted to finance/supervisor permissions. Refund approval, partial refunds, adjustments and reconciliation remain their assigned later milestones. No live provider or treasury credentials are required for demo simulation. See ADR-011.

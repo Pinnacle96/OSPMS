@@ -13,7 +13,7 @@ class HandleInertiaRequests extends Middleware
 
     public function share(Request $request): array
     {
-        if ($request->routeIs('public.ticket.verify')) {
+        if ($request->routeIs('public.ticket.verify', 'public.receipt.verify')) {
             return [
                 ...parent::share($request),
                 'auth' => ['user' => null, 'roles' => [], 'permissions' => [], 'scopes' => null],
@@ -33,6 +33,8 @@ class HandleInertiaRequests extends Middleware
             ['Vehicles', '/vehicles', 'OPERATIONS', 'vehicle', 'view_vehicle'],
             ['Assignments', '/assignments', 'OPERATIONS', 'assignments', 'view_assignment'],
             ['Tickets', '/tickets', 'TICKETING', 'fees', 'view_ticket'],
+            ['Payments', '/payments', 'FINANCE', 'revenue', 'view_payment'],
+            ['Ledger', '/finance/ledger', 'FINANCE', 'revenue', 'view_financial_ledger'],
             ['Revenue heads', '/revenue-heads', 'FINANCE', 'revenue', 'view_revenue_head'],
             ['Fee configurations', '/fee-configurations', 'FINANCE', 'fees', 'view_fee_configuration'],
             ['Users', '/admin/users', 'ADMINISTRATION', 'users', 'manage_users'],

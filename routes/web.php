@@ -19,4 +19,5 @@ Route::middleware(['auth', 'active_user', 'password_change'])->group(function ()
     require __DIR__.'/operations.php';
     require __DIR__.'/registry.php';
     require __DIR__.'/ticketing.php';
+    require __DIR__.'/finance.php';
 });

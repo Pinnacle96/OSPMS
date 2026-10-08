@@ -6,6 +6,8 @@ use App\Domains\Assignments\Models\DriverAssignment;
 use App\Domains\Assignments\Policies\AssignmentPolicy;
 use App\Domains\Drivers\Models\Driver;
 use App\Domains\Drivers\Policies\DriverPolicy;
+use App\Domains\Finance\Models\FinancialTransaction;
+use App\Domains\Finance\Policies\FinancialTransactionPolicy;
 use App\Domains\Geography\Models\Lga;
 use App\Domains\Geography\Policies\LgaPolicy;
 use App\Domains\Identity\Models\User;
@@ -15,6 +17,10 @@ use App\Domains\Operators\Models\Operator;
 use App\Domains\Operators\Policies\OperatorPolicy;
 use App\Domains\Parks\Models\Park;
 use App\Domains\Parks\Policies\ParkPolicy;
+use App\Domains\Payments\Models\Payment;
+use App\Domains\Payments\Models\Receipt;
+use App\Domains\Payments\Policies\PaymentPolicy;
+use App\Domains\Payments\Policies\ReceiptPolicy;
 use App\Domains\Revenue\Models\FeeConfiguration;
 use App\Domains\Revenue\Models\RevenueHead;
 use App\Domains\Revenue\Policies\FeeConfigurationPolicy;
@@ -47,6 +53,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::policy(Payment::class, PaymentPolicy::class);
+        Gate::policy(Receipt::class, ReceiptPolicy::class);
+        Gate::policy(FinancialTransaction::class, FinancialTransactionPolicy::class);
+        RateLimiter::for('receipt-verification', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
         Gate::policy(Ticket::class, TicketPolicy::class);
         RateLimiter::for('ticket-verification', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
         Gate::policy(User::class, UserPolicy::class);

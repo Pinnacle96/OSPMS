@@ -1,7 +1,7 @@
 # Implementation status
 
 Build date: 2026-10-08 (Africa/Lagos)
-Current authorization: continue through Milestone 7. Milestones 0–6 were completed and integrated previously.
+Current authorization: continue through Milestone 8. Milestones 0–7 were completed and integrated previously.
 
 - [x] Milestone 0 — Project Bootstrap
 - [x] Milestone 1 — Authentication + RBAC
@@ -11,7 +11,7 @@ Current authorization: continue through Milestone 7. Milestones 0–6 were compl
 - [x] Milestone 5 — Drivers, Vehicles & Assignments
 - [x] Milestone 6 — Revenue Heads & Fee Configuration
 - [x] Milestone 7 — Ticketing + QR
-- [ ] Milestone 8 — Demo Payments + Receipts + Ledger
+- [x] Milestone 8 — Demo Payments + Receipts + Ledger
 - [ ] Milestone 9 — Revenue Dashboards
 - [ ] Milestone 10 — Settlement + Reconciliation
 - [ ] Milestone 11 — Refunds & Adjustments
@@ -59,7 +59,7 @@ Blocked: none.
 
 Tests: TypeScript, ESLint, production build and browser smoke passed. Screenshots inspected at 1440 × 1000 and 390 × 844; mobile navigation and horizontal overflow checks passed. Automated axe checks reported zero WCAG A/AA violations on login, dashboard and users desktop pages, and the mobile dashboard. Automated checks are not a complete accessibility certification.
 
-Known issues: no financial workflows or charts with data exist yet. Dashboard zeros and empty areas explicitly disclose this. Recent activity is real and permission-filtered. The Field layout is a foundation only; no field routes, service worker or scanner is implemented.
+Known issues: payment/receipt/ledger workflows now exist in Milestone 8; dashboard financial aggregation and charts remain Milestone 9. Dashboard empty areas explicitly disclose this. Recent activity is real and permission-filtered. The Field layout is a foundation only; no field routes, service worker or scanner is implemented.
 
 ## Milestone 3
 
@@ -119,12 +119,24 @@ Blocked: none for this milestone.
 
 Tests: full SQLite and MySQL suites, ticket issuance/cancellation/status/privacy/scope/history tests, migration round trip, QR decoding, responsive Chrome workflows and accessibility samples. See [Milestone 7 validation](MILESTONE_7_VALIDATION.md) for final counts and executed commands.
 
-Known issues: expiry duration is unset until configured from policy. QR links require a reachable APP_URL. Ticketing creates unpaid obligations; payment/receipt/ledger workflows belong to Milestone 8. The scanner/PWA belongs to Milestone 12. Existing SMTP and object storage limitations remain.
+Known issues: expiry duration is unset until configured from policy. QR links require a reachable APP_URL. Ticketing creates unpaid obligations; Milestone 8 adds demo collection separately. The scanner/PWA belongs to Milestone 12. Existing SMTP and object storage limitations remain.
+
+## Milestone 8
+
+Completed: SCR-061–066 and SCR-068–070, with SCR-067 consuming paid/reversed ticket state. Approved Payment, Receipt, FinancialTransaction, FinancialAuditLog and IdempotencyKey tables; provider contract and demo gateway; successful/failed/pending simulations; atomic ticket/payment/receipt/credit/audit writes; idempotent retries and concurrency guards; controlled finance-only demo reversal with a linked debit; scoped payments and read-only ledger; protected receipt detail/print/PDF; safe public receipt verification; general and chained financial audit; retained synthetic fixtures and reset safeguards. No real funds are charged.
+
+In progress: none.
+
+Blocked: none for this milestone.
+
+Tests: full SQLite and MySQL suites, real two-process MySQL payment/audit races, browser collection/reversal/verification flows, PDF rendering and QR decoding, mobile overflow checks and 25 accessibility samples. See [Milestone 8 validation](MILESTONE_8_VALIDATION.md) for final counts and executed checks.
+
+Known issues: revenue dashboard aggregation remains Milestone 9. Settlement/reconciliation, refund approval and adjustments remain Milestones 10–11. Demo writes refuse production. Receipt PDF requires writable framework cache; verification requires reachable APP_URL. Existing SMTP, object storage and unspecified repository license limitations remain. Financial model guards and hash chaining do not replace database privilege controls and protected backups.
 
 ## Later milestones
 
 Completed: none.
 In progress: none.
-Blocked: Milestones 8–20 have not been authorized; not started.
+Blocked: Milestones 9–20 have not been authorized; not started.
 Tests: no later workflow is claimed as tested.
 Known issues: the complete Phase 1 financial and operational presentation journey is not yet available.

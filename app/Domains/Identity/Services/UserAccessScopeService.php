@@ -74,6 +74,16 @@ class UserAccessScopeService
         });
     }
 
+    public function scopePayments(Builder $query, User $user): Builder
+    {
+        return $query->whereHas('ticket', fn ($ticket) => $this->scopeTickets($ticket, $user));
+    }
+
+    public function scopeLedger(Builder $query, User $user): Builder
+    {
+        return $query->whereHas('ticket', fn ($ticket) => $this->scopeTickets($ticket, $user));
+    }
+
     public function scopeTickets(Builder $query, User $user, AccessLevel $level = AccessLevel::View): Builder
     {
         if ($this->isStatewide($user)) {

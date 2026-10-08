@@ -7,6 +7,7 @@ use App\Domains\Geography\Models\Lga;
 use App\Domains\Identity\Models\User;
 use App\Domains\Operators\Models\Operator;
 use App\Domains\Parks\Models\Park;
+use App\Domains\Payments\Models\Payment;
 use App\Domains\Revenue\Models\FeeConfiguration;
 use App\Domains\Revenue\Models\RevenueHead;
 use App\Domains\Routes\Models\Route;
@@ -16,6 +17,7 @@ use App\Domains\Vehicles\Models\Vehicle;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use LogicException;
 
 class Ticket extends Model
@@ -49,6 +51,11 @@ class Ticket extends Model
     public function getRouteKeyName(): string
     {
         return 'public_id';
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
     }
 
     public function revenueHead(): BelongsTo

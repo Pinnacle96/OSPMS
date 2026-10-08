@@ -40,11 +40,11 @@ class LocalDashboardQuery
             ->where($lga ? 'lga_id' : 'park_id', $record->id);
         $metrics[] = ['label' => 'Tickets', 'value' => $user->can('view_ticket') ? $tickets->count() : 0, 'note' => $user->can('view_ticket') ? 'Issued tickets within your access' : 'Ticket access restricted'];
         foreach (['Transactions', 'Pending reconciliation'] as $label) {
-            $metrics[] = ['label' => $label, 'value' => 0, 'note' => 'Workflow not yet enabled'];
+            $metrics[] = ['label' => $label, 'value' => 0, 'note' => 'Dashboard aggregation not yet enabled'];
         }
-        $metrics[] = ['label' => $lga ? "Today's revenue" : "Today's collections", 'value' => '0.00', 'money' => true, 'note' => 'Collections not yet enabled'];
+        $metrics[] = ['label' => $lga ? "Today's revenue" : "Today's collections", 'value' => '0.00', 'money' => true, 'note' => 'Revenue dashboard aggregation not yet enabled'];
         if ($lga) {
-            $metrics[] = ['label' => 'Monthly revenue', 'value' => '0.00', 'money' => true, 'note' => 'Collections not yet enabled'];
+            $metrics[] = ['label' => 'Monthly revenue', 'value' => '0.00', 'money' => true, 'note' => 'Revenue dashboard aggregation not yet enabled'];
         }
 
         return ['record' => $record->only('id', 'public_id', 'name', 'status'), 'metrics' => $metrics, 'kind' => $lga ? 'lgas' : 'parks', 'as_of' => now()->toIso8601String()];

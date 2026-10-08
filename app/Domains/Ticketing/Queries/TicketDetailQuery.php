@@ -3,6 +3,7 @@
 namespace App\Domains\Ticketing\Queries;
 
 use App\Domains\Identity\Models\User;
+use App\Domains\Payments\Queries\PaymentListQuery;
 use App\Domains\Ticketing\Models\Ticket;
 use App\Domains\Ticketing\Services\TicketVerificationService;
 use Spatie\Activitylog\Models\Activity;
@@ -28,6 +29,8 @@ class TicketDetailQuery
             ],
             'links' => $links, 'verification_url' => $verification->url($ticket), 'qr_image' => $verification->qr($ticket),
             'can_cancel' => $user->can('cancel', $ticket),
+            'can_pay' => $user->can('pay', $ticket),
+            'payments' => $user->can('view_payment') ? app(PaymentListQuery::class)->get($user, [], $ticket->id) : null,
             'activities' => $user->can('view_audit_log') ? Activity::forSubject($ticket)->latest('id')->limit(30)->get(['description', 'properties', 'created_at']) : [],
         ];
     }

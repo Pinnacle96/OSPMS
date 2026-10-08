@@ -23,7 +23,6 @@ use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\TicketDemoSeeder;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\FoundationTestCase;
 
@@ -88,7 +87,7 @@ class TicketingTest extends FoundationTestCase
         $this->assertMatchesRegularExpression('/^[a-f0-9]{64}$/', $ticket->verification_token);
         $this->assertDatabaseHas('activity_log', ['description' => 'ticket_created', 'causer_id' => $n['actor']->id]);
         $this->assertStringNotContainsString($ticket->verification_token, DB::table('activity_log')->pluck('properties')->implode(' '));
-        $this->assertFalse(Schema::hasTable('payments'));
+        $this->assertDatabaseCount('payments', 0);
     }
 
     public function test_invalid_and_inactive_assignments_are_rejected_at_issuance(): void

@@ -33,7 +33,7 @@ class DashboardTest extends FoundationTestCase
     public function test_unimplemented_modules_do_not_have_working_routes(): void
     {
         $this->actingAs($this->userWithRole('Super Administrator'));
-        foreach (['/payments', '/finance/ledger', '/field'] as $url) {
+        foreach (['/field'] as $url) {
             $this->get($url)->assertNotFound();
         }
     }

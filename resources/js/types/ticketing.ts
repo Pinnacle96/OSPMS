@@ -13,7 +13,7 @@ export type TicketDetail = TicketRow & {
     context: TicketContext; issuer: string; fee_code: string; fee_name: string; valid:boolean; result:string;
 };
 export type TicketDetailProps = {
-    ticket:TicketDetail; links:Record<string,string>; verification_url:string; qr_image:string; can_cancel:boolean;
+    ticket:TicketDetail; links:Record<string,string>; verification_url:string; qr_image:string; can_cancel:boolean; can_pay:boolean; payments:import('@/types/payments').FinancialPage|null;
     activities:{description:string;created_at:string;properties:{reason?:string}}[];
 };
 export type TicketPage = Paginated<TicketRow>;

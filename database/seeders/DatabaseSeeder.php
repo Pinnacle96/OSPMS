@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             $this->call(RegistryDemoSeeder::class);
             $this->call(TransportRevenueDemoSeeder::class);
             $this->call(TicketDemoSeeder::class);
+            $this->call(PaymentDemoSeeder::class);
         }
     }
 }
