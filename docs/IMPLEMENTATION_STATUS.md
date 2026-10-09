@@ -1,7 +1,7 @@
 # Implementation status
 
 Build date: 2026-10-09 (Africa/Lagos)
-Current authorization: Milestone 12 — Enforcement PWA. Milestones 0–11 were completed and integrated previously.
+Current authorization: Milestone 13 — Incidents & Violations. Milestones 0–12 were completed and integrated previously.
 
 - [x] Milestone 0 — Project Bootstrap
 - [x] Milestone 1 — Authentication + RBAC
@@ -16,7 +16,7 @@ Current authorization: Milestone 12 — Enforcement PWA. Milestones 0–11 were 
 - [x] Milestone 10 — Settlement + Reconciliation
 - [x] Milestone 11 — Refunds & Adjustments
 - [x] Milestone 12 — Enforcement PWA
-- [ ] Milestone 13 — Incidents & Violations
+- [x] Milestone 13 — Incidents & Violations
 - [ ] Milestone 14 — Complaints + Notifications
 - [ ] Milestone 15 — Reports & Exports
 - [ ] Milestone 16 — Audit + Settings
@@ -181,10 +181,22 @@ Tests: MySQL 215 passed / 4038 assertions; SQLite 212 passed / 4026 assertions w
 
 Known issues: physical Android/iOS camera, actual device installation and deployed HTTPS checks remain release validation; the executed camera test used a synthetic media feed in desktop Chrome mobile emulation. Offline support is an anonymous shell only; current verification and saving need a connection. APP_URL must be reachable by the device. No legal clearance, offence/penalty rule or later enforcement administration is inferred. Existing SMTP/object-storage/license/expiry-policy limitations remain.
 
+## Milestone 13
+
+Completed: SCR-095–103; approved Incident/Violation schema and retained models; inspection administration and linked violation recording; scoped incident reporting, filtering and detail; supervisor review/escalation/resolution/closure; atomic confirmed writes, expected-status guards and reasoned history; private JPEG/PNG/PDF evidence on all three record types; authenticated downloads, MIME/hash metadata and rollback/replay cleanup; field capture input and online-only forms; Lagos occurrence/date boundaries with UTC storage; role/navigation/privacy guards; retained synthetic seeds/reset integration.
+
+In progress: none.
+
+Blocked: none for implementation.
+
+Tests: MySQL 248 passed / 4469 assertions; SQLite 245 passed / 4457 assertions with 3 existing MySQL-only precision skips. Thirty-three new milestone tests, three real two-process MySQL scenarios, nine desktop/mobile screens, 24 final accessibility samples with zero violations, full browser reporting/evidence/retry/status/resolution flows, anonymous offline/cache checks, 133 retained financial audit hashes, schema rollback/remigrate, 359 PHP syntax checks, Pint, TypeScript, ESLint, build, six scanner tests and dependency audits passed. See [Milestone 13 validation](MILESTONE_13_VALIDATION.md).
+
+Known issues: physical Android/iOS evidence capture and deployed HTTPS remain release checks; browser capture was verified as a file-input hint and synthetic selection, not a physical camera exercise. The application allows 5 MB but host PHP upload/post limits must be configured accordingly (current CLI upload limit is 2 MB). Evidence currently uses the private local disk; object-storage deployment remains deferred. Offline saving/reopening/deletion, statutory offences/penalties, notifications, complaints and later workflows are not added. A crash between filesystem storage and database completion can leave an orphan; ordinary rollback/replay cleanup was verified. Incidents and unticketed inspections follow current park geography; ticket observations retain original ticket geography. Existing SMTP/license/expiry-policy limitations remain.
+
 ## Later milestones
 
 Completed: none.
 In progress: none.
-Blocked: Milestones 13–20 have not been authorized; not started.
+Blocked: Milestones 14–20 have not been authorized; not started.
 Tests: no later workflow is claimed as tested.
 Known issues: the complete Phase 1 financial and operational presentation journey is not yet available.

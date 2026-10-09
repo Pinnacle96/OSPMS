@@ -9,6 +9,17 @@ use Spatie\Permission\PermissionRegistrar;
 
 class RolePermissionSeeder extends Seeder
 {
+    public const INCIDENT_GRANTS = [
+        'State Administrator' => ['view_inspection', 'view_violation', 'view_incident', 'create_incident', 'manage_incident', 'resolve_violation', 'upload_evidence'],
+        'LGA Administrator' => ['view_inspection', 'view_violation', 'view_incident', 'create_incident', 'manage_incident', 'resolve_violation', 'upload_evidence'],
+        'Park Manager' => ['view_inspection', 'view_violation', 'view_incident', 'create_incident', 'manage_incident', 'resolve_violation', 'upload_evidence'],
+        'Enforcement Officer' => ['view_inspection', 'view_violation', 'record_violation', 'view_incident', 'create_incident', 'upload_evidence'],
+        'Auditor' => ['view_inspection', 'view_violation', 'view_incident'],
+        'Executive Viewer' => ['view_incident'],
+        'Help Desk Officer' => ['view_incident'],
+        'Transport Operator' => ['view_incident'],
+    ];
+
     public const FIELD_GRANTS = ['Enforcement Officer' => ['access_field', 'field_lookup', 'record_inspection']];
 
     public const CORRECTION_GRANTS = [
@@ -106,13 +117,13 @@ class RolePermissionSeeder extends Seeder
     public function run(): void
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
-        $permissions = collect(self::GRANTS)->flatten()->merge(collect(self::REGISTRY_GRANTS)->flatten())->merge(collect(self::TRANSPORT_GRANTS)->flatten())->merge(collect(self::TICKETING_GRANTS)->flatten())->merge(collect(self::PAYMENT_GRANTS)->flatten())->merge(collect(self::DASHBOARD_GRANTS)->flatten())->merge(collect(self::RECONCILIATION_GRANTS)->flatten())->merge(collect(self::CORRECTION_GRANTS)->flatten())->merge(collect(self::FIELD_GRANTS)->flatten())->reject(fn ($name) => $name === '*')->push('manage_users', 'manage_roles')->unique();
+        $permissions = collect(self::GRANTS)->flatten()->merge(collect(self::REGISTRY_GRANTS)->flatten())->merge(collect(self::TRANSPORT_GRANTS)->flatten())->merge(collect(self::TICKETING_GRANTS)->flatten())->merge(collect(self::PAYMENT_GRANTS)->flatten())->merge(collect(self::DASHBOARD_GRANTS)->flatten())->merge(collect(self::RECONCILIATION_GRANTS)->flatten())->merge(collect(self::CORRECTION_GRANTS)->flatten())->merge(collect(self::FIELD_GRANTS)->flatten())->merge(collect(self::INCIDENT_GRANTS)->flatten())->reject(fn ($name) => $name === '*')->push('manage_users', 'manage_roles')->unique();
         foreach ($permissions as $permission) {
             Permission::findOrCreate($permission, 'web');
         }
         foreach (self::GRANTS as $name => $grants) {
             if ($grants !== ['*']) {
-                $grants = array_merge($grants, self::REGISTRY_GRANTS[$name] ?? [], self::TRANSPORT_GRANTS[$name] ?? [], self::TICKETING_GRANTS[$name] ?? [], self::PAYMENT_GRANTS[$name] ?? [], self::DASHBOARD_GRANTS[$name] ?? [], self::RECONCILIATION_GRANTS[$name] ?? [], self::CORRECTION_GRANTS[$name] ?? [], self::FIELD_GRANTS[$name] ?? []);
+                $grants = array_merge($grants, self::REGISTRY_GRANTS[$name] ?? [], self::TRANSPORT_GRANTS[$name] ?? [], self::TICKETING_GRANTS[$name] ?? [], self::PAYMENT_GRANTS[$name] ?? [], self::DASHBOARD_GRANTS[$name] ?? [], self::RECONCILIATION_GRANTS[$name] ?? [], self::CORRECTION_GRANTS[$name] ?? [], self::FIELD_GRANTS[$name] ?? [], self::INCIDENT_GRANTS[$name] ?? []);
             }
             Role::findOrCreate($name, 'web')->syncPermissions($grants === ['*'] ? Permission::where('guard_name', 'web')->get() : $grants);
         }

@@ -8,7 +8,7 @@ import Toast from '@/Components/Feedback/Toast';
 import { LoadingState, ErrorState } from '@/Components/Feedback/States';
 import type { SharedProps } from '@/types';
 
-export default function AppLayout({ title, children, breadcrumbs = [{ label: title }] }: { title: string; children: ReactNode; breadcrumbs?: Crumb[] }) {
+export default function AppLayout({ title, children, breadcrumbs = [{ label: title }], retainFormOnError = false }: { title: string; children: ReactNode; breadcrumbs?: Crumb[]; retainFormOnError?: boolean }) {
     const { system } = usePage<SharedProps>().props;
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -40,7 +40,7 @@ export default function AppLayout({ title, children, breadcrumbs = [{ label: tit
     return <div className={`app-shell ${open ? 'nav-open' : ''}`} style={style}><Head title={title} /><a className="skip-link" href="#main-content">Skip to content</a>
         {open && <button className="nav-backdrop" aria-label="Close navigation" onClick={() => setOpen(false)} />}
         <div className="sidebar-container" id="main-navigation"><button className="nav-close icon-button" aria-label="Close navigation" onClick={() => setOpen(false)}><X size={20} /></button><Sidebar close={() => setOpen(false)} /></div>
-        <div className="main-column"><Topbar toggle={() => setOpen(!open)} expanded={open} /><main id="main-content" className="main-content"><Breadcrumbs items={breadcrumbs} /><Toast />{loading && <div className="page-loading"><LoadingState label="Updating view…" /></div>}{networkError && <ErrorState message="The connection was interrupted. Please try again." retry={() => router.reload()} />}{children}</main>
+        <div className="main-column"><Topbar toggle={() => setOpen(!open)} expanded={open} /><main id="main-content" className="main-content"><Breadcrumbs items={breadcrumbs} /><Toast />{loading && <div className="page-loading"><LoadingState label="Updating view…" /></div>}{networkError && <ErrorState message={retainFormOnError ? "Connection interrupted. Retry your form with the same details to recover a possible saved result." : "The connection was interrupted. Please try again."} retry={retainFormOnError ? undefined : () => router.reload()} />}{children}</main>
             <footer className="app-footer"><span>{system.name}</span><span>{system.demo_mode ? 'Demonstration • Synthetic data only' : 'Secure operations workspace'}</span></footer>
         </div></div>;
 }

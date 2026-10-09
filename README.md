@@ -2,7 +2,7 @@
 
 Government-facing park operations and revenue administration platform. Technology Solution by **Pinnacle Tech Hub**.
 
-This repository currently implements **Milestones 0–12**: the Laravel foundation, authentication/RBAC, account and user administration, scoped geography and transport registries, assignments, private documents, revenue configuration, tickets, demo payments, receipts, an immutable ledger, revenue dashboards, demo settlement batches, audited reconciliation, refunds, financial adjustments and the enforcement PWA. Incidents, violations and reports remain in their approved later milestones.
+This repository currently implements **Milestones 0–13**: the Laravel foundation, authentication/RBAC, account and user administration, scoped geography and transport registries, assignments, private documents, revenue configuration, tickets, demo payments, receipts, an immutable ledger, revenue dashboards, demo settlement batches, audited reconciliation, refunds, financial adjustments, the enforcement PWA, scoped incidents and violations with private evidence and retained resolution history. Complaints, notifications and reports remain in their approved later milestones.
 
 Government retains policy, regulatory authority and ownership of operational and financial data. Pinnacle Tech Hub is the technology provider.
 
@@ -15,7 +15,7 @@ Read these before changing functionality, in this precedence order:
 3. [Screen Inventory v1.0](docs/SCREEN_INVENTORY_v1.0.md)
 4. [Architecture & Implementation Plan v1.0](docs/ARCHITECTURE_IMPLEMENTATION_PLAN_v1.0.md)
 
-Implementation notes: [Decisions](docs/DECISIONS.md), [Required decisions](docs/DECISIONS_REQUIRED.md), [Status](docs/IMPLEMENTATION_STATUS.md), [Milestone 12 validation](docs/MILESTONE_12_VALIDATION.md), [Milestone 11 validation](docs/MILESTONE_11_VALIDATION.md), [Milestone 10 validation](docs/MILESTONE_10_VALIDATION.md), [Milestone 9 validation](docs/MILESTONE_9_VALIDATION.md), [Milestone 8 validation](docs/MILESTONE_8_VALIDATION.md), [Milestone 7 validation](docs/MILESTONE_7_VALIDATION.md), [Milestones 4–6 validation](docs/MILESTONES_4_6_VALIDATION.md), [Milestone 3 validation](docs/MILESTONE_3_VALIDATION.md), [Foundation validation](docs/VALIDATION.md).
+Implementation notes: [Decisions](docs/DECISIONS.md), [Required decisions](docs/DECISIONS_REQUIRED.md), [Status](docs/IMPLEMENTATION_STATUS.md), [Milestone 13 validation](docs/MILESTONE_13_VALIDATION.md), [Milestone 12 validation](docs/MILESTONE_12_VALIDATION.md), [Milestone 11 validation](docs/MILESTONE_11_VALIDATION.md), [Milestone 10 validation](docs/MILESTONE_10_VALIDATION.md), [Milestone 9 validation](docs/MILESTONE_9_VALIDATION.md), [Milestone 8 validation](docs/MILESTONE_8_VALIDATION.md), [Milestone 7 validation](docs/MILESTONE_7_VALIDATION.md), [Milestones 4–6 validation](docs/MILESTONES_4_6_VALIDATION.md), [Milestone 3 validation](docs/MILESTONE_3_VALIDATION.md), [Foundation validation](docs/VALIDATION.md).
 
 ## Stack and architecture
 
@@ -261,7 +261,17 @@ Quick views show registration status, recorded expiry evidence and only assignme
 
 Create an inspection from verification, a quick view or a current operating context. Choose an observation result, enter notes for review/non-compliant outcomes, optionally obtain location with browser permission, then confirm. The server derives identities and time, rechecks scope/status and retains one inspection/audit for repeated confirmations. “Recorded checks clear” requires current assignment/park, active registrations, recorded unexpired dates and a valid selected ticket; it is not a legal clearance or a penalty.
 
-The offline shell contains no identity or records. Current checks and saving require a connection; no inspection is queued offline. Service-worker caching is restricted to anonymous HTML, manifest and icons. After a connection error, retry the same inspection confirmation before leaving the form. Seeds/reset retain observations and all financial history. Inspection administration, incidents, violations and evidence belong to Milestone 13. See [Milestone 12 validation](docs/MILESTONE_12_VALIDATION.md) and ADR-015.
+The offline shell contains no identity or records. Current checks and saving require a connection; no inspection is queued offline. Service-worker caching is restricted to anonymous HTML, manifest and icons. After a connection error, retry the same inspection confirmation before leaving the form. Seeds/reset retain observations and all financial history. Inspection administration, incidents, violations and evidence are implemented in Milestone 13. See [Milestone 12 validation](docs/MILESTONE_12_VALIDATION.md) and ADR-015.
+
+## Incidents and violations
+
+Milestone 13 implements SCR-095–103. Enforcement Officers can report an incident from field home, choose a scoped park and optional current operating assignment, record category/time/description, and attach a photograph or PDF. The field form provides a rear-camera capture input where the mobile browser supports it. Participants and reporter identity are derived by the server. Reports, observations and evidence are retained.
+
+Use **Inspections** to review recorded observations and add private evidence. An authorized officer can record a violation observation from an inspection requiring review or marked non-compliant. Its park, operator, driver and vehicle come from the original inspection. **Violations** provides scoped search/detail and supervisor resolution; open/resolved are operational states and do not create a penalty or financial transaction.
+
+Use **Incidents** for search, filtering, evidence and paginated history. State/LGA/Park supervisors with manage scope can start review, escalate, resolve and close a report. Every change requires a reason and confirmation. A resolved incident can only be closed; closure keeps its final resolution and records a separate closure reason. Resolved violations and closed incidents cannot be reopened through these screens. Auditors and other granted viewers remain read-only; operator viewers see only their own named incidents.
+
+Evidence accepts JPEG/PNG/PDF up to the 5 MB application limit and is stored under `storage/app/private/evidence`. Set the host PHP `upload_max_filesize` to at least `5M` and `post_max_size` above the upload limit (for example `8M`); the current CLI PHP defaults to a lower `2M` upload limit. Use authenticated download links; never publish this directory or run `storage:link` for it. Existing object-storage deployment work remains deferred. Offline saving is unavailable. After an interrupted submission, retry the same form before navigating away. Repeated seeds/reset preserve evidence, decisions and financial history. See [Milestone 13 validation](docs/MILESTONE_13_VALIDATION.md) and ADR-016.
 
 ## Queues and scheduler
 
@@ -289,4 +299,4 @@ No live Government treasury or revenue collection integration exists. Production
 
 Do not expose synthetic presentation accounts publicly with shared/weak passwords. Keep credentials and application keys out of source control, use HTTPS and separate environments, and perform the later security/QA release gate before any government pilot. Existing automated tests and RBAC provide a foundation; they do not certify the entire unbuilt Phase 1 product.
 
-No microservices, native mobile apps, biometrics, tracking, passenger bookings, wallets, AI fraud detection or other out-of-scope workflows have been added. The complete demonstration journey will be delivered in the approved milestone sequence. The next feature milestone is **Milestone 13 — Incidents & Violations**.
+No microservices, native mobile apps, biometrics, tracking, passenger bookings, wallets, AI fraud detection or other out-of-scope workflows have been added. The complete demonstration journey will be delivered in the approved milestone sequence. The next feature milestone is **Milestone 14 — Complaints + Notifications**.

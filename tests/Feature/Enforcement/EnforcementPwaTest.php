@@ -486,4 +486,21 @@ class EnforcementPwaTest extends FoundationTestCase
         $this->assertTrue($page['clearHistory']);
         $this->assertNull($page['props']['auth']['user']);
     }
+
+    public function test_administration_keeps_ticket_inspections_in_original_lga_after_park_moves(): void
+    {
+        $n = $this->network();
+        $other = $this->network('B');
+        $ticket = $this->issue($n);
+        $officer = $this->officer($n);
+        $inspection = app(RecordInspectionAction::class)->execute($officer, ['ticket' => $ticket->public_id, 'inspection_type' => 'ticket_verification', 'result' => 'requires_review', 'notes' => 'Synthetic historical observation requiring review.', 'idempotency_key' => bin2hex(random_bytes(32))]);
+        $viewer = $this->userWithRole('LGA Administrator');
+        $viewer->lgas()->attach($n['lga'], ['access_level' => 'manage', 'created_at' => now()]);
+        $otherViewer = $this->userWithRole('LGA Administrator');
+        $otherViewer->lgas()->attach($other['lga'], ['access_level' => 'manage', 'created_at' => now()]);
+        $n['park']->update(['lga_id' => $other['lga']->id]);
+        $this->actingAs($viewer)->get('/inspections/'.$inspection->public_id)->assertOk();
+        $this->actingAs($otherViewer)->get('/inspections/'.$inspection->public_id)->assertForbidden();
+        $this->actingAs($viewer)->get('/inspections')->assertInertia(fn (Assert $p) => $p->has('records.data', 1));
+    }
 }

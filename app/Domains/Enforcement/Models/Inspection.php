@@ -2,7 +2,13 @@
 
 namespace App\Domains\Enforcement\Models;
 
+use App\Domains\Drivers\Models\Driver;
 use App\Domains\Enforcement\Enums\InspectionResult;
+use App\Domains\Operators\Models\Operator;
+use App\Domains\Parks\Models\Park;
+use App\Domains\System\Models\MediaAttachment;
+use App\Domains\Ticketing\Models\Ticket;
+use App\Domains\Vehicles\Models\Vehicle;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 
@@ -27,6 +33,41 @@ class Inspection extends Model
     public function getRouteKeyName(): string
     {
         return 'public_id';
+    }
+
+    public function park()
+    {
+        return $this->belongsTo(Park::class)->withTrashed();
+    }
+
+    public function operator()
+    {
+        return $this->belongsTo(Operator::class)->withTrashed();
+    }
+
+    public function driver()
+    {
+        return $this->belongsTo(Driver::class)->withTrashed();
+    }
+
+    public function vehicle()
+    {
+        return $this->belongsTo(Vehicle::class)->withTrashed();
+    }
+
+    public function ticket()
+    {
+        return $this->belongsTo(Ticket::class);
+    }
+
+    public function evidence()
+    {
+        return $this->morphMany(MediaAttachment::class, 'attachable');
+    }
+
+    public function violations()
+    {
+        return $this->hasMany(Violation::class);
     }
 
     protected static function booted(): void

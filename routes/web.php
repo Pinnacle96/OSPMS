@@ -24,4 +24,5 @@ Route::middleware(['auth', 'active_user', 'password_change'])->group(function ()
     require __DIR__.'/ticketing.php';
     require __DIR__.'/finance.php';
     require __DIR__.'/enforcement.php';
+    require __DIR__.'/incidents.php';
 });

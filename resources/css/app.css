@@ -356,3 +356,13 @@ legend { font-size: 13px; font-weight: 600; margin-bottom: 16px; }
 .field-shortcut strong { display:block; color:var(--gov-text); }
 .field-shortcut small { display:block; margin-top:5px; font-size:12px; }
 .field-shortcut:last-child:nth-child(odd) { grid-column:1 / -1; }
+
+/* Incidents and retained enforcement observations. */
+.incident-detail { display:grid; gap:1.25rem; }
+.incident-facts { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1rem; margin:1.25rem 0; }
+.incident-facts dt { font-size:.85rem; color:var(--gov-muted); }
+.incident-facts dd { margin:0; overflow-wrap:anywhere; }
+.incident-text,.incident-evidence { white-space:pre-wrap; overflow-wrap:anywhere; }
+.incident-history { padding-left:1.25rem; }
+.incident-history li { padding:.75rem 0; border-bottom:1px solid var(--gov-border); }
+.incident-history p { margin:.3rem 0; }
