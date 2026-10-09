@@ -24,6 +24,7 @@ class HandleInertiaRequests extends Middleware
         $user = $request->user();
         $nav = [];
         foreach ([
+            ['Field workspace', '/field/', 'OPERATIONS', 'key', 'access_field'],
             ['Dashboard', '/dashboard', 'OVERVIEW', 'dashboard', 'view_state_dashboard'],
             ['Executive Dashboard', '/executive/dashboard', 'OVERVIEW', 'dashboard', 'view_executive_dashboard'],
             ['LGAs', '/lgas', 'OPERATIONS', 'geography', 'view_lga'],

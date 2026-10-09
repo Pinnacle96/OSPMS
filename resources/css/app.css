@@ -301,3 +301,58 @@ legend { font-size: 13px; font-weight: 600; margin-bottom: 16px; }
 .revenue-totals .stat-value, .stat-card .numeric { overflow-wrap: anywhere; }
 @media (min-width: 1200px) { .revenue-totals { grid-template-columns: repeat(4, minmax(0, 1fr)); } .revenue-totals .stat-value { font-size: 25px; } }
 @media (max-width: 640px) { .revenue-chart { height: 240px; padding: 4px 0 0; } .dashboard-filter-note { padding: 0 16px 16px; } .dashboard-record-links { gap: 12px; } .metric-unavailable { font-size: 14px; } }
+
+/* Scoped mobile enforcement workspace. */
+.field-app { min-height:100dvh; background:var(--gov-background); }
+.field-header { min-height:68px; display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px max(20px,calc((100vw - 760px) / 2)); background:var(--gov-surface); border-bottom:1px solid var(--gov-border); }
+.field-main { max-width:760px; padding:22px 20px calc(100px + env(safe-area-inset-bottom)); margin:auto; }
+.field-intro { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.field-intro .eyebrow { margin:0; }
+.field-main h1 { margin:8px 0 16px; }
+.field-connection { padding:3px 9px; border-radius:20px; font-size:12px; color:#205d40; background:#edf7f1; }
+.field-connection.offline { color:#754d13; background:#fff6e6; }
+.field-content { display:grid; gap:18px; }
+.field-lead { margin:10px 0; color:var(--gov-muted); }
+.field-demo { margin:0 0 18px; color:var(--gov-muted); font-size:12px; }
+.field-bottom-nav { position:fixed; bottom:0; left:0; right:0; background:var(--gov-surface); border-top:1px solid var(--gov-border); display:flex; justify-content:center; padding-bottom:env(safe-area-inset-bottom); z-index:30; }
+.field-bottom-nav a { display:flex; flex:1; max-width:190px; min-height:65px; align-items:center; justify-content:center; flex-direction:column; gap:4px; color:var(--gov-secondary); font-size:12px; font-weight:600; }
+.field-bottom-nav a:hover { background:var(--gov-soft-blue); }
+.field-shortcuts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.field-shortcut { background:white; border:1px solid var(--gov-border); padding:20px; border-radius:8px; display:flex; flex-direction:column; gap:8px; }
+.field-shortcut svg { color:var(--gov-secondary); }
+.field-shortcut span { color:var(--gov-muted); font-size:13px; }
+.field-install { border-top:1px solid var(--gov-border); margin-top:28px; padding-top:16px; display:grid; gap:10px; }
+.field-install .button { justify-self:start; }
+.field-footer { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-top:20px; font-size:12px; color:var(--gov-muted); }
+.field-footer small { flex-basis:100%; }
+.field-camera { width:100%; min-height:200px; max-height:420px; background:#102237; border-radius:6px; object-fit:cover; }
+.field-actions { display:flex; flex-wrap:wrap; gap:10px; margin:14px 0; }
+.field-error { color:var(--status-danger); margin-top:10px; }
+.field-facts { display:grid; grid-template-columns:minmax(100px,1fr) minmax(0,2fr); gap:10px 16px; margin:16px 0; }
+.field-facts dt { color:var(--gov-muted); font-size:13px; }
+.field-facts dd { margin:0; overflow-wrap:anywhere; }
+.field-clear { border-left:4px solid var(--status-success); }
+.field-attention { border-left:4px solid var(--status-warning); }
+.field-verdict h2 { font-size:22px; }
+.field-verdict p { margin-top:8px; }
+.field-tabs { display:flex; gap:8px; flex-wrap:wrap; }
+.field-tabs a { display:inline-flex; min-height:44px; align-items:center; padding:8px 14px; border:1px solid var(--gov-border); border-radius:5px; background:white; }
+.field-tabs a[aria-current=page] { background:var(--gov-primary); color:white; }
+.field-records { display:grid; gap:12px; margin:12px 0; }
+.field-record-card { background:white; border:1px solid var(--gov-border); border-radius:6px; padding:16px; display:grid; gap:5px; overflow-wrap:anywhere; }
+.field-checks { list-style:none; margin:12px 0; padding:0; }
+.field-checks li { display:flex; flex-wrap:wrap; gap:8px; align-items:center; border-bottom:1px solid var(--gov-border); padding:12px 0; }
+.field-checks li strong { flex:1; min-width:160px; }
+.field-check-state { font-size:12px; font-weight:600; padding:2px 8px; border-radius:12px; background:var(--status-warning-bg); color:#754d13; }
+.field-check-state.clear { color:#205d40; background:var(--status-success-bg); }
+.field-assignment { border-top:1px solid var(--gov-border); padding:16px 0; }
+.field-location { border:1px solid var(--gov-border); border-radius:6px; padding:14px; display:grid; gap:10px; }
+.field-location legend { padding:0 6px; }
+.field-app .button { min-height:44px; }
+@media(max-width:420px) { .field-main { padding-left:16px; padding-right:16px; } .field-shortcut { padding:14px; } .field-facts { grid-template-columns:minmax(80px,1fr) minmax(0,1.7fr); gap:10px; } .field-app .pagination { flex-wrap:wrap; } }
+
+.field-camera + .field-actions button:first-child { flex:1; min-height:52px; font-size:16px; }
+
+.field-shortcut strong { display:block; color:var(--gov-text); }
+.field-shortcut small { display:block; margin-top:5px; font-size:12px; }
+.field-shortcut:last-child:nth-child(odd) { grid-column:1 / -1; }

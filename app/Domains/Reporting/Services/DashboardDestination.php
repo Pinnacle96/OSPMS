@@ -8,6 +8,9 @@ class DashboardDestination
 {
     public function route(User $user): string
     {
+        if ($user->can('access_field') && ! $user->can('view_state_dashboard') && ! $user->can('view_revenue_dashboard')) {
+            return 'field.home';
+        }
         if ($user->can('view_executive_dashboard') && ! $user->can('view_revenue_dashboard')) {
             return 'dashboard.executive';
         }

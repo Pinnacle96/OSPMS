@@ -6,6 +6,8 @@ use App\Domains\Assignments\Models\DriverAssignment;
 use App\Domains\Assignments\Policies\AssignmentPolicy;
 use App\Domains\Drivers\Models\Driver;
 use App\Domains\Drivers\Policies\DriverPolicy;
+use App\Domains\Enforcement\Models\Inspection;
+use App\Domains\Enforcement\Policies\InspectionPolicy;
 use App\Domains\Finance\Models\FinancialAdjustment;
 use App\Domains\Finance\Models\FinancialTransaction;
 use App\Domains\Finance\Models\Refund;
@@ -64,6 +66,10 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(Refund::class, RefundPolicy::class);
         Gate::policy(FinancialAdjustment::class, FinancialAdjustmentPolicy::class);
+        Gate::policy(Inspection::class, InspectionPolicy::class);
+        RateLimiter::for('field-verification', fn (Request $r) => Limit::perMinute(60)->by($r->user()->id));
+        RateLimiter::for('field-lookup', fn (Request $r) => Limit::perMinute(60)->by($r->user()->id));
+        RateLimiter::for('field-inspections', fn (Request $r) => Limit::perMinute(30)->by($r->user()->id));
         Gate::policy(Settlement::class, SettlementPolicy::class);
         Gate::policy(ReconciliationRun::class, ReconciliationPolicy::class);
         Gate::policy(ReconciliationItem::class, ReconciliationPolicy::class);

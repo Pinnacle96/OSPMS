@@ -7,6 +7,7 @@ use App\Domains\Identity\Services\LoginActivityService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class EnsureUserIsActive
 {
@@ -17,6 +18,7 @@ class EnsureUserIsActive
             Auth::guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
+            Inertia::clearHistory();
 
             return redirect()->route('login')->withErrors(['login' => 'Your account is not active. Contact your administrator.']);
         }

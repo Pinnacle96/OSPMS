@@ -1,7 +1,7 @@
 # Implementation status
 
-Build date: 2026-10-08 (Africa/Lagos)
-Current authorization: Milestone 11 — Refunds & Adjustments. Milestones 0–10 were completed and integrated previously.
+Build date: 2026-10-09 (Africa/Lagos)
+Current authorization: Milestone 12 — Enforcement PWA. Milestones 0–11 were completed and integrated previously.
 
 - [x] Milestone 0 — Project Bootstrap
 - [x] Milestone 1 — Authentication + RBAC
@@ -15,7 +15,7 @@ Current authorization: Milestone 11 — Refunds & Adjustments. Milestones 0–10
 - [x] Milestone 9 — Revenue Dashboards
 - [x] Milestone 10 — Settlement + Reconciliation
 - [x] Milestone 11 — Refunds & Adjustments
-- [ ] Milestone 12 — Enforcement PWA
+- [x] Milestone 12 — Enforcement PWA
 - [ ] Milestone 13 — Incidents & Violations
 - [ ] Milestone 14 — Complaints + Notifications
 - [ ] Milestone 15 — Reports & Exports
@@ -169,10 +169,22 @@ Tests: MySQL 189 passed / 3,340 assertions; SQLite 186 passed / 3,328 assertions
 
 Known issues: refund processing is demo-only and refuses production; no real provider refund, treasury allocation rule, bank account or approval threshold is configured. Any successful refund invalidates ticket/receipt verification; original receipt amounts and completed reconciliation snapshots remain historical. Adjustments do not reactivate tickets or transfer provider funds. ADR-014 resolves the schema/screen wording on approval versus successful refund debits. Existing SMTP/object storage/license/expiry-policy limitations remain.
 
+## Milestone 12
+
+Completed: SCR-085–094; mobile enforcement layout, scoped safe driver/vehicle/operator lookups and summaries, camera/manual QR verification through existing services, installable manifest/worker/icons, anonymous offline shell, exact retained inspection schema, server-derived confirmed observations, optional coordinates, permission/geography/history guards, actor limits, atomic audit/idempotency and retained demo/reset behavior. Shared financial confirmation compatibility and full product identity are preserved.
+
+In progress: none.
+
+Blocked: none for implementation.
+
+Tests: MySQL 215 passed / 4038 assertions; SQLite 212 passed / 4026 assertions with 3 existing MySQL-only precision skips. Twenty-six enforcement tests, six scanner-normalization tests, two real MySQL confirmation workers, lost-response retry, ten desktop/mobile screens, 22 accessibility samples with zero violations, camera pipeline/fallback/track cleanup, installability/offline/cache-update/history checks, schema round trip, lint/type/build/syntax and dependency audits passed. See [Milestone 12 validation](MILESTONE_12_VALIDATION.md).
+
+Known issues: physical Android/iOS camera, actual device installation and deployed HTTPS checks remain release validation; the executed camera test used a synthetic media feed in desktop Chrome mobile emulation. Offline support is an anonymous shell only; current verification and saving need a connection. APP_URL must be reachable by the device. No legal clearance, offence/penalty rule or later enforcement administration is inferred. Existing SMTP/object-storage/license/expiry-policy limitations remain.
+
 ## Later milestones
 
 Completed: none.
 In progress: none.
-Blocked: Milestones 12–20 have not been authorized; not started.
+Blocked: Milestones 13–20 have not been authorized; not started.
 Tests: no later workflow is claimed as tested.
 Known issues: the complete Phase 1 financial and operational presentation journey is not yet available.

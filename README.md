@@ -2,7 +2,7 @@
 
 Government-facing park operations and revenue administration platform. Technology Solution by **Pinnacle Tech Hub**.
 
-This repository currently implements **Milestones 0–11**: the Laravel foundation, authentication/RBAC, account and user administration, scoped geography and transport registries, assignments, private documents, revenue configuration, tickets, demo payments, receipts, an immutable ledger, revenue dashboards, demo settlement batches, audited reconciliation, refunds and financial adjustments. Enforcement and reports remain in their approved later milestones.
+This repository currently implements **Milestones 0–12**: the Laravel foundation, authentication/RBAC, account and user administration, scoped geography and transport registries, assignments, private documents, revenue configuration, tickets, demo payments, receipts, an immutable ledger, revenue dashboards, demo settlement batches, audited reconciliation, refunds, financial adjustments and the enforcement PWA. Incidents, violations and reports remain in their approved later milestones.
 
 Government retains policy, regulatory authority and ownership of operational and financial data. Pinnacle Tech Hub is the technology provider.
 
@@ -15,7 +15,7 @@ Read these before changing functionality, in this precedence order:
 3. [Screen Inventory v1.0](docs/SCREEN_INVENTORY_v1.0.md)
 4. [Architecture & Implementation Plan v1.0](docs/ARCHITECTURE_IMPLEMENTATION_PLAN_v1.0.md)
 
-Implementation notes: [Decisions](docs/DECISIONS.md), [Required decisions](docs/DECISIONS_REQUIRED.md), [Status](docs/IMPLEMENTATION_STATUS.md), [Milestone 11 validation](docs/MILESTONE_11_VALIDATION.md), [Milestone 10 validation](docs/MILESTONE_10_VALIDATION.md), [Milestone 9 validation](docs/MILESTONE_9_VALIDATION.md), [Milestone 8 validation](docs/MILESTONE_8_VALIDATION.md), [Milestone 7 validation](docs/MILESTONE_7_VALIDATION.md), [Milestones 4–6 validation](docs/MILESTONES_4_6_VALIDATION.md), [Milestone 3 validation](docs/MILESTONE_3_VALIDATION.md), [Foundation validation](docs/VALIDATION.md).
+Implementation notes: [Decisions](docs/DECISIONS.md), [Required decisions](docs/DECISIONS_REQUIRED.md), [Status](docs/IMPLEMENTATION_STATUS.md), [Milestone 12 validation](docs/MILESTONE_12_VALIDATION.md), [Milestone 11 validation](docs/MILESTONE_11_VALIDATION.md), [Milestone 10 validation](docs/MILESTONE_10_VALIDATION.md), [Milestone 9 validation](docs/MILESTONE_9_VALIDATION.md), [Milestone 8 validation](docs/MILESTONE_8_VALIDATION.md), [Milestone 7 validation](docs/MILESTONE_7_VALIDATION.md), [Milestones 4–6 validation](docs/MILESTONES_4_6_VALIDATION.md), [Milestone 3 validation](docs/MILESTONE_3_VALIDATION.md), [Foundation validation](docs/VALIDATION.md).
 
 ## Stack and architecture
 
@@ -223,7 +223,7 @@ Remove-Item Env:\DB_CONNECTION
 Remove-Item Env:\DB_DATABASE
 ```
 
-The test suite recreates its configured database tables. Never point it at an operational/demo database that must be retained. See [the current validation report](docs/MILESTONE_10_VALIDATION.md) for executed checks, including MySQL 8.4.
+The test suite recreates its configured database tables. Never point it at an operational/demo database that must be retained. See [the current validation report](docs/MILESTONE_12_VALIDATION.md) for executed checks, including MySQL 8.4.
 
 ## Settlement and reconciliation
 
@@ -251,6 +251,18 @@ Any successful refund, including partial refunds, invalidates current receipt an
 
 The synthetic seed includes an independently approved partial demo refund and a pending debit adjustment. Repeated seeds and demo reset preserve their decisions and audit history. See [Milestone 11 validation](docs/MILESTONE_11_VALIDATION.md) and ADR-014. No live refund provider, treasury rule or approval threshold is configured.
 
+## Enforcement field app
+
+Milestone 12 implements SCR-085–094 at `/field/`. Enforcement Officers land there after login; Super Administrators can open **Field workspace** in navigation. Field tasks are QR scanning, ticket/receipt verification, scoped driver/vehicle/operator lookup and confirmed inspection recording. The demo enforcement officer receives a view scope for the synthetic Osogbo park and can record observations without registry management or finance administration rights.
+
+Use **Start camera** to scan a ticket or receipt, or paste its verification code/QR URL. The scanner requests a rear-facing camera where supported and closes the camera on navigation. Install through the browser’s Install app/Add to Home Screen option where supported. Camera and service-worker support require HTTPS or localhost. Configure a reachable `APP_URL` before sharing printed QR codes; a phone cannot use the development machine’s localhost URL.
+
+Quick views show registration status, recorded expiry evidence and only assignments in the officer’s scope. Verification uses the existing authoritative ticket/receipt services; unpaid, expired, reversed or successfully refunded entitlements are not valid for ticket use. Original amounts remain historical, and receipt validity is distinct from ticket validity.
+
+Create an inspection from verification, a quick view or a current operating context. Choose an observation result, enter notes for review/non-compliant outcomes, optionally obtain location with browser permission, then confirm. The server derives identities and time, rechecks scope/status and retains one inspection/audit for repeated confirmations. “Recorded checks clear” requires current assignment/park, active registrations, recorded unexpired dates and a valid selected ticket; it is not a legal clearance or a penalty.
+
+The offline shell contains no identity or records. Current checks and saving require a connection; no inspection is queued offline. Service-worker caching is restricted to anonymous HTML, manifest and icons. After a connection error, retry the same inspection confirmation before leaving the form. Seeds/reset retain observations and all financial history. Inspection administration, incidents, violations and evidence belong to Milestone 13. See [Milestone 12 validation](docs/MILESTONE_12_VALIDATION.md) and ADR-015.
+
 ## Queues and scheduler
 
 Framework tables are ready for the approved database queue. Demo reconciliation runs synchronously for presentation datasets. Non-demo reconciliation dispatches the same idempotent job to the configured database queue; run a worker:
@@ -277,4 +289,4 @@ No live Government treasury or revenue collection integration exists. Production
 
 Do not expose synthetic presentation accounts publicly with shared/weak passwords. Keep credentials and application keys out of source control, use HTTPS and separate environments, and perform the later security/QA release gate before any government pilot. Existing automated tests and RBAC provide a foundation; they do not certify the entire unbuilt Phase 1 product.
 
-No microservices, native mobile apps, biometrics, tracking, passenger bookings, wallets, AI fraud detection or other out-of-scope workflows have been added. The complete demonstration journey will be delivered in the approved milestone sequence. The next feature milestone is **Milestone 11 — Refunds & Adjustments**.
+No microservices, native mobile apps, biometrics, tracking, passenger bookings, wallets, AI fraud detection or other out-of-scope workflows have been added. The complete demonstration journey will be delivered in the approved milestone sequence. The next feature milestone is **Milestone 13 — Incidents & Violations**.

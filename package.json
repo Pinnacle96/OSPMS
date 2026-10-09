@@ -6,10 +6,13 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint resources/js"
+    "lint": "eslint resources/js",
+    "test:field": "node --test tests/Frontend/scanTarget.test.cjs"
   },
   "dependencies": {
     "@inertiajs/react": "^2.0.0",
+    "@zxing/browser": "0.1.5",
+    "@zxing/library": "0.21.3",
     "lucide-react": "^0.468.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
