@@ -299,7 +299,7 @@ No live Government treasury or revenue collection integration exists. Production
 
 Do not expose synthetic presentation accounts publicly with shared/weak passwords. Keep credentials and application keys out of source control, use HTTPS and separate environments, and perform the later security/QA release gate before any government pilot. Existing automated tests and RBAC provide a foundation; they do not certify the entire unbuilt Phase 1 product.
 
-No microservices, native mobile apps, biometrics, tracking, passenger bookings, wallets, AI fraud detection or other out-of-scope workflows have been added. The complete demonstration journey will be delivered in the approved milestone sequence. The next feature milestone is **Milestone 14 — Complaints + Notifications**.
+No microservices, native mobile apps, biometrics, tracking, passenger bookings, wallets, AI fraud detection or other out-of-scope workflows have been added. The complete demonstration journey will be delivered in the approved milestone sequence. The next feature milestone is **Milestone 16 — Audit + Settings**.
 
 ## Complaints and notifications
 
@@ -322,3 +322,24 @@ php artisan notifications:expired-documents
 The command is scheduled daily without overlapping. Run Laravel’s scheduler in deployment (`php artisan schedule:run` each minute, or the appropriate service). Unknown dates and dates valid through the current Africa/Lagos day do not generate expiry notices. Repeated checks retain one notice per account/document/expiry date, without changing compliance status.
 
 Private complaint evidence uses the existing local disk and application 5 MB limit. Configure host upload/post limits accordingly; the current local PHP upload limit remains 2 MB. There is no public evidence URL or offline submission queue. See [Milestone 14 validation](docs/MILESTONE_14_VALIDATION.md) and ADR-017 for scope and executed checks.
+
+
+## Reports and exports
+
+Milestone 15 implements SCR-111–113. Open **Oversight → Reports** to select daily/monthly revenue, revenue by park/LGA, transactions, reconciliation, vehicles, drivers, operators, incidents or complaints. Available reports require both report access and the underlying domain permission. Use local date, LGA/park, participant, revenue head, status and channel filters where relevant. Choice lists are scoped and bounded; **Find filter choices** searches names/registrations when a list is long. Totals reflect the entire applied result, independently of the preview page.
+
+Revenue is posted NGN ledger credits minus debits. Transactions lists payment attempts, including failed/pending attempts; its attempted amount is not received revenue. Reconciliation lists findings from completed run snapshots, so historical runs can repeat an obligation. Registry reports use creation dates, incidents occurrence and complaints submission. Dates follow Africa/Lagos, with a maximum 366-day range. Reports omit private contacts, document identifiers, descriptions, notes and evidence.
+
+Users with export permission can generate CSV, Excel (.xlsx) or PDF. More than 1,000 source rows queue automatically; **Generate in background** also queues smaller reports. CSV/Excel stream complete results; monetary XLSX cells contain exact decimal text. PDF is limited to 1,000 output rows and all exports to 100,000 source rows; narrow filters for larger results. These configurable limits do not silently truncate data. **Saved exports** shows only the current user's files, polls queued requests, provides authorized retries for failures and checks current permission/scope again at download. A change in roles, pivots or covered-record geography can block an old file; generate a fresh report with current access.
+
+Run a worker for report exports, including in demo mode:
+
+```powershell
+php artisan queue:work database --queue=reports,default --tries=3 --timeout=60
+# A reports-only short-running worker for a host-approved cron strategy:
+php artisan queue:work database --queue=reports --stop-when-empty --max-time=50 --tries=1 --timeout=60
+```
+
+Keep the database queue on the application connection and retry_after above the 60-second report job timeout (default 90). Queue request/job insertion is atomic on that connection. Job generation attempts once; failures remain visible for an explicit retry after access/filter/storage issues are corrected. Host execution limits must allow a job to finish. Files live in `storage/app/private/report-exports`; never publish or link this directory. Keep backups of metadata and private files together. Normal failures/replays remove unused files, while process termination can leave an orphan requiring later operational cleanup. No automatic export purge or public file-sharing workflow is implemented.
+
+No new database migration is needed for Milestone 15. Deploy the updated permission seeder as an intentional role-policy update (`php artisan db:seed --class=RolePermissionSeeder --force`); existing V roles remain view-only and require an explicit export grant if their policy is changed. See [Milestone 15 validation](docs/MILESTONE_15_VALIDATION.md) and ADR-018.

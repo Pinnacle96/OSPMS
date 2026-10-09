@@ -1,7 +1,7 @@
 # Implementation status
 
 Build date: 2026-10-09 (Africa/Lagos)
-Current authorization: Milestone 14 — Complaints + Notifications. Milestones 0–13 were completed and integrated previously.
+Current authorization: Milestone 15 — Reports & Exports. Milestones 0–14 were completed and integrated previously.
 
 - [x] Milestone 0 — Project Bootstrap
 - [x] Milestone 1 — Authentication + RBAC
@@ -18,7 +18,7 @@ Current authorization: Milestone 14 — Complaints + Notifications. Milestones 0
 - [x] Milestone 12 — Enforcement PWA
 - [x] Milestone 13 — Incidents & Violations
 - [x] Milestone 14 — Complaints + Notifications
-- [ ] Milestone 15 — Reports & Exports
+- [x] Milestone 15 — Reports & Exports
 - [ ] Milestone 16 — Audit + Settings
 - [ ] Milestone 17 — Final System Pages + UI Hardening
 - [ ] Milestone 18 — Demo Data + Presentation Workflow
@@ -205,10 +205,22 @@ Tests: MySQL 283 passed / 4909 assertions; SQLite 280 passed / 4897 assertions w
 
 Known issues: preferences are local per account/browser; no email/SMS provider is enabled. Expiry checks need the deployment scheduler. Unlocated public complaints await statewide/Super routing. Incident assignment is not invented because the approved incident schema has no assignee. The existing host upload limit/private local evidence/crash-orphan limitations remain. Production volume, physical devices, SMTP/object-storage deployment and unspecified repository license remain release decisions.
 
+## Milestone 15
+
+Completed: central report catalog/viewer/saved exports for SCR-111–113, all eleven report types, scoped filters and paginated previews, exact source totals, separate export permissions, CSV/XLSX/PDF output, durable database queue, private owner-only files, access/coverage/hash rechecks, idempotent request/job/retry and general audit events. Existing idempotency/media/job tables are reused without schema drift.
+
+In progress: none.
+
+Blocked: none for implementation.
+
+Tests: MySQL 310 passed / 5305 assertions; SQLite 307 passed / 5293 assertions with 3 existing MySQL-only precision skips. Twenty-seven reporting tests, two real export races, 34 browser accessibility samples and private/export/history retention checks pass. See [Milestone 15 validation](MILESTONE_15_VALIDATION.md).
+
+Known issues: background exports need a reports worker on the application database connection; PDF/source limits are configurable. Excel money uses exact decimal text. Existing private-local-storage/process-crash orphan and host deployment limitations remain. No scheduled/public export sharing or automatic purge is approved.
+
 ## Later milestones
 
 Completed: none.
 In progress: none.
-Blocked: Milestones 15–20 have not been authorized; not started.
+Blocked: Milestones 16–20 have not been authorized; not started.
 Tests: no later workflow is claimed as tested.
 Known issues: the complete Phase 1 financial and operational presentation journey is not yet available.

@@ -38,6 +38,7 @@ class HandleInertiaRequests extends Middleware
             ['Violations', '/violations', 'OPERATIONS', 'shield', 'view_violation'],
             ['Incidents', '/incidents', 'OPERATIONS', 'shield', 'view_incident'],
             ['Complaints', '/complaints', 'OPERATIONS', 'shield', 'view_complaint'],
+            ['Reports', '/reports', 'OVERSIGHT', 'revenue', 'view_reports'],
             ['Tickets', '/tickets', 'TICKETING', 'fees', 'view_ticket'],
             ['Payments', '/payments', 'FINANCE', 'revenue', 'view_payment'],
             ['Revenue Dashboard', '/finance/dashboard', 'FINANCE', 'revenue', 'view_revenue_dashboard'],
