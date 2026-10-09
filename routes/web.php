@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', fn () => redirect()->route(auth()->check() ? app(DashboardDestination::class)->route(auth()->user()) : 'login'))->name('home');
 require __DIR__.'/auth.php';
 require __DIR__.'/public.php';
+require __DIR__.'/public-complaints.php';
 Route::middleware(['auth', 'active_user', 'password_change'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard.state');
     Route::get('/executive/dashboard', DashboardController::class)->name('dashboard.executive');
@@ -25,4 +26,5 @@ Route::middleware(['auth', 'active_user', 'password_change'])->group(function ()
     require __DIR__.'/finance.php';
     require __DIR__.'/enforcement.php';
     require __DIR__.'/incidents.php';
+    require __DIR__.'/complaints.php';
 });

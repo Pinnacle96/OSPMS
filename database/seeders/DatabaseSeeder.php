@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             $this->call(CorrectionDemoSeeder::class);
             $this->call(EnforcementDemoSeeder::class);
             $this->call(IncidentDemoSeeder::class);
+            $this->call(ComplaintDemoSeeder::class);
         }
     }
 }

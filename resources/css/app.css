@@ -366,3 +366,5 @@ legend { font-size: 13px; font-weight: 600; margin-bottom: 16px; }
 .incident-history { padding-left:1.25rem; }
 .incident-history li { padding:.75rem 0; border-bottom:1px solid var(--gov-border); }
 .incident-history p { margin:.3rem 0; }
+
+.notification-count{background:var(--gov-primary);color:#fff;border-radius:10px;padding:2px 5px;font-size:10px;line-height:1.2}.retained-text{white-space:pre-wrap;overflow-wrap:anywhere}.complaint-note{padding:12px 0;border-bottom:1px solid #e2e8f0}.complaint-reference{font-weight:700;overflow-wrap:anywhere}.notification-list{list-style:none;padding:0}.notification-list li{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:16px 0;border-bottom:1px solid #e2e8f0}.notification-list li div{min-width:0;overflow-wrap:anywhere}@media(max-width:640px){.notification-list li{align-items:flex-start;flex-direction:column}}

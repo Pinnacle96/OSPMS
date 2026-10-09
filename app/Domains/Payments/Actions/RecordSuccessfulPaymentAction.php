@@ -5,11 +5,13 @@ namespace App\Domains\Payments\Actions;
 use App\Domains\Audit\Services\FinancialAuditService;
 use App\Domains\Finance\Actions\CreateLedgerCreditAction;
 use App\Domains\Identity\Models\User;
+use App\Domains\Notifications\Services\RecordNotificationService;
 use App\Domains\Payments\Enums\PaymentStatus;
 use App\Domains\Payments\Events\PaymentSucceeded;
 use App\Domains\Payments\Models\Payment;
 use App\Domains\Ticketing\Models\Ticket;
 use App\Domains\Ticketing\Services\TicketExpiryService;
+use App\Notifications\PaymentSuccessfulNotification;
 use App\Support\Payments\PaymentGatewayManager;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -39,6 +41,7 @@ class RecordSuccessfulPaymentAction
             app(GenerateReceiptAction::class)->execute($p);
             app(FinancialAuditService::class)->record($actor, $p, 'payment_successful', ['ticket_reference' => $ticket->ticket_reference]);
             activity('payments')->causedBy($actor)->performedOn($p)->log('payment_successful');
+            app(RecordNotificationService::class)->send(User::find($p->created_by), $p, 'payment', 'success', $p->payment_reference, 'Payment recorded successfully', PaymentSuccessfulNotification::class);
             PaymentSucceeded::dispatch($p);
 
             return $p;

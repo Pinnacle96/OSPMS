@@ -20,6 +20,7 @@ use App\Domains\Payments\Services\ReceiptVerificationService;
 use App\Domains\Revenue\Models\FeeConfiguration;
 use App\Domains\Revenue\Models\RevenueHead;
 use App\Domains\Ticketing\Models\Ticket;
+use App\Notifications\PaymentSuccessfulNotification;
 use App\Support\Payments\DTOs\PaymentVerificationResult;
 use App\Support\Payments\Gateways\DemoPaymentGateway;
 use Database\Seeders\DatabaseSeeder;
@@ -73,6 +74,9 @@ class PaymentsTest extends FoundationTestCase
         $this->assertDatabaseCount('financial_transactions', 1);
         $this->assertDatabaseCount('financial_audit_logs', 2);
         $this->assertSame('credit', FinancialTransaction::first()->direction);
+        $notice = $n['actor']->notifications()->sole();
+        $this->assertSame(PaymentSuccessfulNotification::class, $notice->type);
+        $this->assertSame($p->public_id, $notice->data['subject']);
     }
 
     public function test_failed_and_pending_attempts_have_no_receipt_or_ledger_and_failed_can_retry(): void
@@ -87,6 +91,7 @@ class PaymentsTest extends FoundationTestCase
         $this->assertNull($pending->paid_at);
         $this->assertDatabaseCount('receipts', 0);
         $this->assertDatabaseCount('financial_transactions', 0);
+        $this->assertSame(0, $n['actor']->notifications()->count());
         $this->expectException(ValidationException::class);
         $this->pay($n);
     }

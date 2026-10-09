@@ -22,6 +22,6 @@ Route::middleware(['cache.headers:private;no_store', EncryptHistoryMiddleware::c
     Route::get('/incidents/{incident}', [IncidentController::class, 'show'])->name('incidents.show');
     Route::get('/incidents/{incident}/manage', [IncidentController::class, 'manage'])->name('incidents.manage');
     Route::post('/incidents/{incident}/manage', [IncidentController::class, 'update'])->middleware('throttle:operational-writes')->name('incidents.update');
-    Route::post('/{kind}/{record}/evidence', [EvidenceController::class, 'store'])->whereIn('kind', ['incidents', 'inspections', 'violations'])->middleware('throttle:operational-writes')->name('evidence.store');
-    Route::get('/{kind}/{record}/evidence/{media}', [EvidenceController::class, 'show'])->whereIn('kind', ['incidents', 'inspections', 'violations'])->name('evidence.show');
+    Route::post('/{kind}/{record}/evidence', [EvidenceController::class, 'store'])->whereIn('kind', ['incidents', 'inspections', 'violations', 'complaints'])->middleware('throttle:operational-writes')->name('evidence.store');
+    Route::get('/{kind}/{record}/evidence/{media}', [EvidenceController::class, 'show'])->whereIn('kind', ['incidents', 'inspections', 'violations', 'complaints'])->name('evidence.show');
 });

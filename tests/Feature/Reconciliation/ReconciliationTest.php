@@ -26,6 +26,7 @@ use App\Domains\Reconciliation\Services\ReconciliationSummaryService;
 use App\Domains\Revenue\Models\FeeConfiguration;
 use App\Domains\Revenue\Models\RevenueHead;
 use App\Domains\Ticketing\Models\Ticket;
+use App\Notifications\ReconciliationExceptionNotification;
 use Carbon\CarbonImmutable;
 use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\ReconciliationDemoSeeder;
@@ -104,6 +105,7 @@ class ReconciliationTest extends FoundationTestCase
         $this->assertSame('0.00', $item->difference_amount);
         $this->assertSame('500.10', $item->actual_amount);
         $this->assertSame('completed', $run->status->value);
+        $this->assertSame(0, $run->actor->notifications()->where('type', ReconciliationExceptionNotification::class)->count());
         $audits = FinancialAuditLog::count();
         $this->assertSame($run->id, app(RunReconciliationAction::class)->execute($run)->id);
         $this->assertSame($audits, FinancialAuditLog::count());
@@ -137,6 +139,10 @@ class ReconciliationTest extends FoundationTestCase
         $this->assertSame('amount_mismatch', $mismatch->exception_type);
         $this->assertSame('0.01', $mismatch->difference_amount);
         $this->assertSame(['amount_mismatch'], $run->summary['evidence'][$mismatch->id]['flags']);
+        $notice = $run->actor->notifications()->where('type', ReconciliationExceptionNotification::class)->sole();
+        $this->assertSame($run->public_id, $notice->data['subject']);
+        app(RunReconciliationAction::class)->execute($run);
+        $this->assertSame(1, $run->actor->notifications()->where('type', ReconciliationExceptionNotification::class)->count());
         $this->actingAs($this->finance())->get('/finance/reconciliation/items/'.$mismatch->id)->assertInertia(fn (Assert $p) => $p->component('Finance/Reconciliation/Exception')->where('evidence.sources.0.credits.0.settlements.0.amount', '500.09'));
     }
 

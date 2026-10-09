@@ -4,6 +4,8 @@ namespace App\Domains\Drivers\Actions;
 
 use App\Domains\Drivers\Models\Driver;
 use App\Domains\Identity\Models\User;
+use App\Domains\Notifications\Services\RecordNotificationService;
+use App\Notifications\DriverApprovedNotification;
 use App\Support\References\ReferenceGenerator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -38,6 +40,10 @@ class SaveDriverAction
             activity('drivers')->causedBy($actor)->performedOn($r)->withProperties(['from' => $old, 'to' => $next])->log($record ? 'driver_updated' : 'driver_created');
             if ($old !== $next) {
                 activity('drivers')->causedBy($actor)->performedOn($r)->log('driver_'.$next);
+            }
+
+            if ($next === 'active' && $old !== $next) {
+                app(RecordNotificationService::class)->send(User::find($r->created_by), $r, 'driver', 'approval:'.$r->approved_at->toIso8601String(), $r->driver_number, 'Driver registration approved', DriverApprovedNotification::class);
             }
 
             return $r;

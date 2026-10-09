@@ -39,9 +39,9 @@ class EvidenceService
         }
     }
 
-    public function attach(User $u, Model $r, string $path, array $meta): MediaAttachment
+    public function attach(?User $u, Model $r, string $path, array $meta): MediaAttachment
     {
-        $m = $r->evidence()->create(['category' => strtolower(class_basename($r)).'_evidence', 'disk' => 'local', 'path' => $path, 'original_name' => $meta['name'], 'mime_type' => $meta['mime'], 'size_bytes' => $meta['size'], 'file_hash' => $meta['hash'], 'uploaded_by' => $u->id, 'created_at' => now()]);
+        $m = $r->evidence()->create(['category' => strtolower(class_basename($r)).'_evidence', 'disk' => 'local', 'path' => $path, 'original_name' => $meta['name'], 'mime_type' => $meta['mime'], 'size_bytes' => $meta['size'], 'file_hash' => $meta['hash'], 'uploaded_by' => $u?->id, 'created_at' => now()]);
         activity('incidents')->causedBy($u)->performedOn($r)->withProperties(['evidence' => $m->public_id, 'sha256' => $meta['hash']])->log('evidence_uploaded');
 
         return $m;

@@ -1,7 +1,7 @@
 # Implementation status
 
 Build date: 2026-10-09 (Africa/Lagos)
-Current authorization: Milestone 13 — Incidents & Violations. Milestones 0–12 were completed and integrated previously.
+Current authorization: Milestone 14 — Complaints + Notifications. Milestones 0–13 were completed and integrated previously.
 
 - [x] Milestone 0 — Project Bootstrap
 - [x] Milestone 1 — Authentication + RBAC
@@ -17,7 +17,7 @@ Current authorization: Milestone 13 — Incidents & Violations. Milestones 0–1
 - [x] Milestone 11 — Refunds & Adjustments
 - [x] Milestone 12 — Enforcement PWA
 - [x] Milestone 13 — Incidents & Violations
-- [ ] Milestone 14 — Complaints + Notifications
+- [x] Milestone 14 — Complaints + Notifications
 - [ ] Milestone 15 — Reports & Exports
 - [ ] Milestone 16 — Audit + Settings
 - [ ] Milestone 17 — Final System Pages + UI Hardening
@@ -193,10 +193,22 @@ Tests: MySQL 248 passed / 4469 assertions; SQLite 245 passed / 4457 assertions w
 
 Known issues: physical Android/iOS evidence capture and deployed HTTPS remain release checks; browser capture was verified as a file-input hint and synthetic selection, not a physical camera exercise. The application allows 5 MB but host PHP upload/post limits must be configured accordingly (current CLI upload limit is 2 MB). Evidence currently uses the private local disk; object-storage deployment remains deferred. Offline saving/reopening/deletion, statutory offences/penalties, notifications, complaints and later workflows are not added. A crash between filesystem storage and database completion can leave an orphan; ordinary rollback/replay cleanup was verified. Incidents and unticketed inspections follow current park geography; ticket observations retain original ticket geography. Existing SMTP/license/expiry-policy limitations remain.
 
+## Milestone 14
+
+Completed: SCR-104–110; exact approved complaints/notes/database-notifications schema; scoped Help Desk queue/create/detail, public validated and rate-limited form/session-owned success; immutable authored notes, assignment, review/resolution/closure and reasoned history; anonymous private evidence; session/actor/payload-bound confirmations and lost-response recovery; database notices for assignment, driver approval, payment success, reconciliation exceptions and known expired documents; current-authorization subject redaction, ownership-safe read actions, actual unread count, account/browser preferences and retained demo seed/reset integration.
+
+In progress: none.
+
+Blocked: none for implementation.
+
+Tests: MySQL 283 passed / 4909 assertions; SQLite 280 passed / 4897 assertions with 3 existing MySQL-only precision skips. See [Milestone 14 validation](MILESTONE_14_VALIDATION.md) for executed commands. Thirty-five new complaint/notification tests plus payment/reconciliation notification assertions, three real two-process MySQL races, seven desktop/mobile screens, 24 accessibility samples with zero violations, browser public/evidence/lost-response/workflow/read/preference flows, deployed web CSRF rejection, schema rollback/remigrate and existing financial/evidence retention checks were executed.
+
+Known issues: preferences are local per account/browser; no email/SMS provider is enabled. Expiry checks need the deployment scheduler. Unlocated public complaints await statewide/Super routing. Incident assignment is not invented because the approved incident schema has no assignee. The existing host upload limit/private local evidence/crash-orphan limitations remain. Production volume, physical devices, SMTP/object-storage deployment and unspecified repository license remain release decisions.
+
 ## Later milestones
 
 Completed: none.
 In progress: none.
-Blocked: Milestones 14–20 have not been authorized; not started.
+Blocked: Milestones 15–20 have not been authorized; not started.
 Tests: no later workflow is claimed as tested.
 Known issues: the complete Phase 1 financial and operational presentation journey is not yet available.

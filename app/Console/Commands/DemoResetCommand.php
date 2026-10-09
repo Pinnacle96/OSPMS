@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Domains\Identity\Enums\UserStatus;
 use App\Domains\Identity\Models\User;
+use Database\Seeders\ComplaintDemoSeeder;
 use Database\Seeders\CorrectionDemoSeeder;
 use Database\Seeders\DemoUserSeeder;
 use Database\Seeders\EnforcementDemoSeeder;
@@ -56,6 +57,7 @@ class DemoResetCommand extends Command
             $this->call('db:seed', ['--class' => CorrectionDemoSeeder::class, '--force' => true]);
             $this->call('db:seed', ['--class' => EnforcementDemoSeeder::class, '--force' => true]);
             $this->call('db:seed', ['--class' => IncidentDemoSeeder::class, '--force' => true]);
+            $this->call('db:seed', ['--class' => ComplaintDemoSeeder::class, '--force' => true]);
         });
         $this->info('Demo identity and registry access baseline restored. Existing registry edits and audit history preserved. Financial records are retained; missing synthetic payment and reconciliation fixtures are added. Settlements, reconciliation findings, inspections, incidents, violations, private evidence and review history are preserved.');
 

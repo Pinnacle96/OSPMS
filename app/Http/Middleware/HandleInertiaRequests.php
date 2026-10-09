@@ -13,12 +13,12 @@ class HandleInertiaRequests extends Middleware
 
     public function share(Request $request): array
     {
-        if ($request->routeIs('public.ticket.verify', 'public.receipt.verify')) {
+        if ($request->routeIs('public.ticket.verify', 'public.receipt.verify', 'public.complaints.*')) {
             return [
                 ...parent::share($request),
                 'auth' => ['user' => null, 'roles' => [], 'permissions' => [], 'scopes' => null],
                 'system' => app(PublicSystemConfig::class)->get(),
-                'navigation' => [], 'flash' => [], 'errors' => [], 'unread_notifications_count' => 0,
+                'navigation' => [], 'flash' => [], 'errors' => $request->routeIs('public.complaints.*') ? parent::share($request)['errors'] : [], 'unread_notifications_count' => 0,
             ];
         }
         $user = $request->user();
@@ -37,6 +37,7 @@ class HandleInertiaRequests extends Middleware
             ['Inspections', '/inspections', 'OPERATIONS', 'shield', 'view_inspection'],
             ['Violations', '/violations', 'OPERATIONS', 'shield', 'view_violation'],
             ['Incidents', '/incidents', 'OPERATIONS', 'shield', 'view_incident'],
+            ['Complaints', '/complaints', 'OPERATIONS', 'shield', 'view_complaint'],
             ['Tickets', '/tickets', 'TICKETING', 'fees', 'view_ticket'],
             ['Payments', '/payments', 'FINANCE', 'revenue', 'view_payment'],
             ['Revenue Dashboard', '/finance/dashboard', 'FINANCE', 'revenue', 'view_revenue_dashboard'],
@@ -54,6 +55,8 @@ class HandleInertiaRequests extends Middleware
                 $nav[] = compact('label', 'href', 'group', 'icon');
             }
         }
+        $nav[] = ['label' => 'Notifications', 'href' => '/notifications', 'group' => 'ACCOUNT', 'icon' => 'shield'];
+        $nav[] = ['label' => 'Notification preferences', 'href' => '/account/notifications', 'group' => 'ACCOUNT', 'icon' => 'key'];
         $nav[] = ['label' => 'My account', 'href' => '/account/profile', 'group' => 'ACCOUNT', 'icon' => 'user'];
         $nav[] = ['label' => 'My access', 'href' => '/account/access', 'group' => 'ACCOUNT', 'icon' => 'key'];
 
@@ -67,7 +70,7 @@ class HandleInertiaRequests extends Middleware
             ],
             'system' => app(PublicSystemConfig::class)->get(),
             'flash' => ['success' => fn () => $request->session()->get('success'), 'error' => fn () => $request->session()->get('error'), 'status' => fn () => $request->session()->get('status')],
-            'navigation' => $nav, 'unread_notifications_count' => 0,
+            'navigation' => $nav, 'unread_notifications_count' => $user ? $user->unreadNotifications()->count() : 0,
         ];
     }
 }

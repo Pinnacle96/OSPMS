@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Domains\Assignments\Models\DriverAssignment;
 use App\Domains\Assignments\Policies\AssignmentPolicy;
+use App\Domains\Complaints\Models\Complaint;
+use App\Domains\Complaints\Policies\ComplaintPolicy;
 use App\Domains\Drivers\Models\Driver;
 use App\Domains\Drivers\Policies\DriverPolicy;
 use App\Domains\Enforcement\Models\Inspection;
@@ -68,6 +70,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::policy(Complaint::class, ComplaintPolicy::class);
+        RateLimiter::for('public-complaints', fn (Request $r) => [Limit::perMinute(5)->by($r->ip()), Limit::perHour(20)->by($r->ip())]);
         Gate::policy(Refund::class, RefundPolicy::class);
         Gate::policy(FinancialAdjustment::class, FinancialAdjustmentPolicy::class);
         Gate::policy(Inspection::class, InspectionPolicy::class);

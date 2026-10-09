@@ -2,7 +2,7 @@
 
 Government-facing park operations and revenue administration platform. Technology Solution by **Pinnacle Tech Hub**.
 
-This repository currently implements **Milestones 0–13**: the Laravel foundation, authentication/RBAC, account and user administration, scoped geography and transport registries, assignments, private documents, revenue configuration, tickets, demo payments, receipts, an immutable ledger, revenue dashboards, demo settlement batches, audited reconciliation, refunds, financial adjustments, the enforcement PWA, scoped incidents and violations with private evidence and retained resolution history. Complaints, notifications and reports remain in their approved later milestones.
+This repository currently implements **Milestones 0–14**: the Laravel foundation, authentication/RBAC, account and user administration, scoped geography and transport registries, assignments, private documents, revenue configuration, tickets, demo payments, receipts, an immutable ledger, revenue dashboards, demo settlement batches, audited reconciliation, refunds, financial adjustments, the enforcement PWA, scoped incidents and violations with private evidence and retained resolution history. Milestone 14 adds scoped Help Desk complaints, public submissions, authored notes, assignment/resolution and a database notification center with local display preferences. Reports remain in their approved later milestone.
 
 Government retains policy, regulatory authority and ownership of operational and financial data. Pinnacle Tech Hub is the technology provider.
 
@@ -15,7 +15,7 @@ Read these before changing functionality, in this precedence order:
 3. [Screen Inventory v1.0](docs/SCREEN_INVENTORY_v1.0.md)
 4. [Architecture & Implementation Plan v1.0](docs/ARCHITECTURE_IMPLEMENTATION_PLAN_v1.0.md)
 
-Implementation notes: [Decisions](docs/DECISIONS.md), [Required decisions](docs/DECISIONS_REQUIRED.md), [Status](docs/IMPLEMENTATION_STATUS.md), [Milestone 13 validation](docs/MILESTONE_13_VALIDATION.md), [Milestone 12 validation](docs/MILESTONE_12_VALIDATION.md), [Milestone 11 validation](docs/MILESTONE_11_VALIDATION.md), [Milestone 10 validation](docs/MILESTONE_10_VALIDATION.md), [Milestone 9 validation](docs/MILESTONE_9_VALIDATION.md), [Milestone 8 validation](docs/MILESTONE_8_VALIDATION.md), [Milestone 7 validation](docs/MILESTONE_7_VALIDATION.md), [Milestones 4–6 validation](docs/MILESTONES_4_6_VALIDATION.md), [Milestone 3 validation](docs/MILESTONE_3_VALIDATION.md), [Foundation validation](docs/VALIDATION.md).
+Implementation notes: [Decisions](docs/DECISIONS.md), [Required decisions](docs/DECISIONS_REQUIRED.md), [Status](docs/IMPLEMENTATION_STATUS.md), [Milestone 14 validation](docs/MILESTONE_14_VALIDATION.md), [Milestone 13 validation](docs/MILESTONE_13_VALIDATION.md), [Milestone 12 validation](docs/MILESTONE_12_VALIDATION.md), [Milestone 11 validation](docs/MILESTONE_11_VALIDATION.md), [Milestone 10 validation](docs/MILESTONE_10_VALIDATION.md), [Milestone 9 validation](docs/MILESTONE_9_VALIDATION.md), [Milestone 8 validation](docs/MILESTONE_8_VALIDATION.md), [Milestone 7 validation](docs/MILESTONE_7_VALIDATION.md), [Milestones 4–6 validation](docs/MILESTONES_4_6_VALIDATION.md), [Milestone 3 validation](docs/MILESTONE_3_VALIDATION.md), [Foundation validation](docs/VALIDATION.md).
 
 ## Stack and architecture
 
@@ -223,7 +223,7 @@ Remove-Item Env:\DB_CONNECTION
 Remove-Item Env:\DB_DATABASE
 ```
 
-The test suite recreates its configured database tables. Never point it at an operational/demo database that must be retained. See [the current validation report](docs/MILESTONE_12_VALIDATION.md) for executed checks, including MySQL 8.4.
+The test suite recreates its configured database tables. Never point it at an operational/demo database that must be retained. See [the current validation report](docs/MILESTONE_14_VALIDATION.md) for executed checks, including MySQL 8.4.
 
 ## Settlement and reconciliation
 
@@ -300,3 +300,25 @@ No live Government treasury or revenue collection integration exists. Production
 Do not expose synthetic presentation accounts publicly with shared/weak passwords. Keep credentials and application keys out of source control, use HTTPS and separate environments, and perform the later security/QA release gate before any government pilot. Existing automated tests and RBAC provide a foundation; they do not certify the entire unbuilt Phase 1 product.
 
 No microservices, native mobile apps, biometrics, tracking, passenger bookings, wallets, AI fraud detection or other out-of-scope workflows have been added. The complete demonstration journey will be delivered in the approved milestone sequence. The next feature milestone is **Milestone 14 — Complaints + Notifications**.
+
+## Complaints and notifications
+
+Milestone 14 implements SCR-104–110. Open **Operations → Complaints** as Help Desk/Super Administrator to record, receive, assign, review, resolve and close complaints. Assignment/status decisions require a reason; resolution requires its final text. Original reports, authored notes, private evidence and review decisions are retained. State/LGA/Park/Auditor/Enforcement readers use current scope without Help Desk write grants. Operator viewers see only their named complaints and shared notes; internal notes, contacts and evidence are withheld.
+
+The public form is `/public/complaints`. It requires a name, category and description; phone/email, park and JPEG/PNG/PDF evidence are optional. Only active park names/public IDs are listed. Submission is CSRF protected and rate-limited to five/minute and twenty/hour per IP. Success displays a session-owned reference without contact details, a public status lookup or anonymous evidence access. Retry an interrupted request with the same form/details to recover a possible saved result. Refreshing repeatedly can replace older form confirmations; the latest five issued keys remain available in the session.
+
+Located complaints follow current park geography. Unlocated public complaints await statewide/Super Administrator routing; a scoped Help Desk officer can manage their own unlocated submission or one explicitly assigned to them. Assignments require an active Help Desk/Super or otherwise explicitly granted complaint manager with access to the selected park. Public contact details are readable by Help Desk/Super by default.
+
+Open the bell or **Account → Notifications** to see your database notices. Assignment, driver approval, successful payment and reconciliation exceptions notify the eligible assignee/creator/run starter. Read/unread filters and explicit single/all read actions preserve ownership. Links and references disappear when current record authorization is revoked. Existing operational/financial records are not replayed merely to backfill notification history.
+
+**Notification preferences** at `/account/notifications` store unread-badge visibility for the current account in this browser. They do not disable database notices or enable email/SMS. No live external delivery is configured.
+
+Known expired licence/insurance/roadworthiness dates can be checked with:
+
+```powershell
+php artisan notifications:expired-documents
+```
+
+The command is scheduled daily without overlapping. Run Laravel’s scheduler in deployment (`php artisan schedule:run` each minute, or the appropriate service). Unknown dates and dates valid through the current Africa/Lagos day do not generate expiry notices. Repeated checks retain one notice per account/document/expiry date, without changing compliance status.
+
+Private complaint evidence uses the existing local disk and application 5 MB limit. Configure host upload/post limits accordingly; the current local PHP upload limit remains 2 MB. There is no public evidence URL or offline submission queue. See [Milestone 14 validation](docs/MILESTONE_14_VALIDATION.md) and ADR-017 for scope and executed checks.

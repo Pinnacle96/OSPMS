@@ -1,0 +1,13 @@
+import {Link,router} from '@inertiajs/react';
+import {useState} from 'react';
+import AppLayout from '@/Layouts/AppLayout';
+import PageHeader from '@/Components/App/PageHeader';
+import Pagination from '@/Components/Data/Pagination';
+import FormField from '@/Components/Forms/FormField';
+import {dateTime} from '@/lib/formatters';
+import type {Paginated} from '@/types';
+import type {Complaint} from '@/types/complaints';
+export default function Index({records,filters,statuses,can_create}:{records:Paginated<Complaint>;filters:{search?:string;status?:string;assigned?:string};statuses:string[];can_create:boolean}){
+ const [search,setSearch]=useState(filters.search??''),[status,setStatus]=useState(filters.status??''),[assigned,setAssigned]=useState(filters.assigned??'');
+ return <AppLayout title="Complaints"><PageHeader title="Complaints" description="Review reports, assignments and retained resolution history." actions={can_create?<Link className="button" href="/complaints/create">Record complaint</Link>:undefined}/><section className="panel"><div className="panel-body"><form className="filter-bar" onSubmit={e=>{e.preventDefault();router.get('/complaints',{search,status,assigned},{preserveState:true});}}><FormField id="complaint-search" label="Reference or category"><input id="complaint-search" type="search" maxLength={100} value={search} onChange={e=>setSearch(e.target.value)}/></FormField><FormField id="complaint-status" label="Status"><select id="complaint-status" value={status} onChange={e=>setStatus(e.target.value)}><option value="">All statuses</option>{statuses.map(s=><option key={s} value={s}>{s.replaceAll('_',' ')}</option>)}</select></FormField><FormField id="complaint-assignment" label="Assignment"><select id="complaint-assignment" value={assigned} onChange={e=>setAssigned(e.target.value)}><option value="">All assignments</option><option value="me">Assigned to me</option><option value="unassigned">Unassigned</option></select></FormField><button className="button secondary">Filter</button></form></div><div className="table-wrap"><table><thead><tr><th>Reference</th><th>Category</th><th>Park</th><th>Status</th><th>Assigned officer</th><th>Submitted</th></tr></thead><tbody>{records.data.length?records.data.map(c=><tr key={c.public_id}><td><Link className="text-link" href={'/complaints/'+c.public_id}>{c.reference}</Link></td><td>{c.category}</td><td>{c.park?.name??'Unlocated'}</td><td>{c.status.replaceAll('_',' ')}</td><td>{c.assignee?.name??'Unassigned'}</td><td>{dateTime(c.created_at)}</td></tr>):<tr><td colSpan={6}>No complaints match your filters and current scope.</td></tr>}</tbody></table></div><Pagination page={records}/></section></AppLayout>;
+}
